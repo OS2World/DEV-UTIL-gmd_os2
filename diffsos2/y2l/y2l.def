@@ -1,0 +1,5 @@
+NAME            y2l WINDOWCOMPAT
+
+DESCRIPTION     'Y2L, (C) GMD Karlsruhe 1992, ported by Eduard Kappel'
+PROTMODE
+STACKSIZE       32768

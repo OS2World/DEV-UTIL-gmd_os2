@@ -1,0 +1,203 @@
+*** m2c/Makefile	Sun Jul 25 19:29:10 1993
+--- oldm2c/Makefile	Fri Sep 25 04:10:40 1992
+***************
+*** 1,31 ****
+  BIN     = $(HOME)/bin
+  LIB     = $(HOME)/lib
+! OPTA    = -s -O -D__STDC__
+! #OPTA    = -ggdb -D__STDC__
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__
+! #OPTLIB  = -Zomf -Zsys -g -D__STDC__
+! CC      = gcc
+  
+-                 # binaries used
+- OBJS    = r2l.$(OBJ) DefTable.$(OBJ) Errors.$(OBJ) Parser.$(OBJ) Scanner.$(OBJ)
+- 
+                  # C library (reuse)
+  REUSE   = ../../reuse/m2c
+  
+                  # C libraries
+! CLIBS   = -lreuse
+  
+                  # options for C compiler
+! CFLAGS  = -I$(REUSE) $(OPT) -L$(REUSE)
+  
+  M2FLAGS = -c
+  
+! all     :
+! !IFNDEF OMF
+!         nmake "OBJ=o" "OPT=$(OPTA)" "DEF=" r2l
+! !ELSE
+!         nmake "OBJ=obj" "OPT=$(OPTLIB)" "DEF=r2l.def" r2l
+! !ENDIF
+  
+  install:        r2l r2l.sh $(LIB)/r2l
+          if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+--- 1,20 ----
+  BIN	= $(HOME)/bin
+  LIB	= $(HOME)/lib
+! OPT	= -O
+! CC	= cc
+  
+                  # C library (reuse)
+  REUSE	= ../../reuse/m2c
+  
+                  # C libraries
+! CLIBS	= $(REUSE)/libreuse.a
+  
+                  # options for C compiler
+! CFLAGS	= -w -I$(REUSE) $(OPT)
+  
+  M2FLAGS	= -c
+  
+! all:	r2l
+  
+  install:	r2l r2l.sh $(LIB)/r2l
+  	if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+***************
+*** 42,105 ****
+  
+  # swap all byte pairs of the files Scanner.Tab and Parser.Tab
+  
+! bin.conv:       ..\..\os2tools\swapbytes.exe
+!         ..\..\os2tools\swapbytes Scanner.Tab Scanner.New
+!         mv Scanner.New Scanner.Tab
+!         ..\..\os2tools\swapbytes Parser.Tab Parser.New
+!         mv Parser.New Parser.Tab
+! 
+! ..\..\os2tools\swapbytes.exe:  ..\..\os2tools\swapbytes.c
+!         $(CC) -o ..\..\os2tools\swapbytes.exe ..\..\os2tools\swapbytes.c
+! 
+! # bin.conv:
+! #         dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! #         dd conv=swab < Parser.Tab > .Parser.Tab; mv .Parser.Tab Parser.Tab
+  
+! # SYSTEM_       = SYSTEM_.$(OBJ)
+  
+  # HEAD
+  
+  sources : DefTable.h
+  
+  sources : DefTable.c
+! DefTable.$(OBJ)      : DefTable.c DefTable.h
+  
+  sources : Errors.h
+  
+  sources : Errors.c
+! Errors.$(OBJ)        : Errors.c Errors.h
+  
+  sources : Parser.h
+  
+  sources : Parser.c
+! Parser.$(OBJ)        : Parser.c Parser.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Errors.h
+! Parser.$(OBJ)        : Errors.h
+! Parser.$(OBJ)        : DefTable.h
+  
+  sources : Scanner.h
+  
+  sources : Scanner.c
+! Scanner.$(OBJ)       : Scanner.c Scanner.h
+! Scanner.$(OBJ)       : Errors.h
+  
+  sources : r2l.c
+! r2l.$(OBJ)   : r2l.c
+! r2l.$(OBJ)   : Scanner.h
+! r2l.$(OBJ)   : Parser.h
+! 
+! SYSTEM_.$(OBJ)       : SYSTEM_.c SYSTEM_.h
+! 
+! r2l     : $(OBJS)
+!         $(CC) $(CFLAGS) -o $*.exe $(OBJS) $(CLIBS) $(DEF)
+  
+  # TAIL
+  
+  clean   :
+!         rm -f core *.$(OBJ)
+  
+! .SUFFIXES: .md .mi .h .c .$(OBJ)
+  
+  .mi.c:
+          mtc $(M2FLAGS) $*.mi;
+--- 31,97 ----
+  
+  # swap all byte pairs of the files Scanner.Tab and Parser.Tab
+  
+! bin.conv:
+! 	dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! 	dd conv=swab < Parser.Tab > .Parser.Tab; mv .Parser.Tab Parser.Tab
+  
+! # SYSTEM_	= SYSTEM_.o
+  
+  # HEAD
+  
+  sources	: DefTable.h
+  
+  sources	: DefTable.c
+! DefTable.o	: DefTable.c DefTable.h
+  
+  sources	: Errors.h
+  
+  sources	: Errors.c
+! Errors.o	: Errors.c Errors.h
+  
+  sources	: Parser.h
+  
+  sources	: Parser.c
+! Parser.o	: Parser.c Parser.h
+! Parser.o	: Scanner.h
+! Parser.o	: Errors.h
+! Parser.o	: Errors.h
+! Parser.o	: DefTable.h
+  
+  sources	: Scanner.h
+  
+  sources	: Scanner.c
+! Scanner.o	: Scanner.c Scanner.h
+! Scanner.o	: Errors.h
+  
+  sources	: r2l.c
+! all	: r2l
+! r2l.o	: r2l.c
+! r2l.o	: Scanner.h
+! r2l.o	: Parser.h
+! 
+! SYSTEM_.o	: SYSTEM_.c SYSTEM_.h
+! 
+! r2l	: $(SYSTEM)	\
+! 	r2l.o	\
+! 	Parser.o	\
+! 	DefTable.o	\
+! 	Errors.o	\
+! 	Scanner.o	\
+! ;	$(CC) $(CFLAGS) -o r2l $(SYSTEM)	\
+! 	r2l.o	\
+! 	Parser.o	\
+! 	DefTable.o	\
+! 	Errors.o	\
+! 	Scanner.o	\
+! 	$(CLIBS)
+  
+  # TAIL
+  
+  clean	:
+! 	rm -f core *.o
+  
+! .SUFFIXES: .md .mi .h .c .o
+  
+  .mi.c:
+  	mtc $(M2FLAGS) $*.mi;
+***************
+*** 107,111 ****
+  .md.h:
+          mtc $(M2FLAGS) $*.md;
+  
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 99,103 ----
+  .md.h:
+  	mtc $(M2FLAGS) $*.md;
+  
+! .c.o:
+! 	$(CC) $(CFLAGS) -c $*.c

@@ -1,0 +1,132 @@
+
+
+
+REX(1)                   USER COMMANDS                     REX(1)
+
+
+
+NAME
+     rex - generator of lexical analysers
+
+SYNOPSIS
+     rex [ -options ] [ -ldir ] [ file ]
+
+DESCRIPTION
+     Rex generates programs to be used  in  lexical  analysis  of
+     text.  A  typical  application is the generation of scanners
+     for compilers. The input file contains  regular  expressions
+     to  be searched for, and actions written in C or Modula-2 to
+     be executed when strings according to  the  expressions  are
+     found.   Unrecognized  portions  of  the input are copied to
+     standard output.  To be able to recognize  tokens  depending
+     on  their  context, Rex provides start states to handle left
+     context and the right context can be specified by  an  addi-
+     tional  regular  expression.  If several regular expressions
+     match the input characters, the longest match is  preferred.
+     If  there  are  still  several  possibilities,  the  regular
+     expression given first in the specification is chosen.
+
+     Rex generated scanners automatically provide  the  line  and
+     column position of each token. For languages like Pascal and
+     Ada where the case of letters is insignificant tokens can be
+     normalized  to  lower  or  upper  case. There are predefined
+     rules to skip white space like blanks, tabs, or newlines and
+     there is a mechanism to handle include files.  The generated
+     scanners are table-driven deterministic finite automatons.
+
+OPTIONS
+     a    generate all (= sdm)
+
+     m    generate a lexical analyser in Modula-2 (default)
+
+     c    generate a lexical analyser in C
+
+     d    generate a definition module for the lexical analyser
+
+     s    generate support modules:
+          - a source module for input
+          - a main program to be used as test driver
+
+     r    reduce the  number  of  generated  case/switch  labels.
+          Might   be  necessary  due  to  compiler  restrictions.
+          Effects: slower scanner  (2-4%),  larger  tables,  same
+          scanner size.
+
+     i    use ISO 8 bit code (default: ASCII 7 bit code)
+
+     o    optimize table size
+          Effects: slower scanner  (0-15%),  small  tables,  long
+          generation time (factor 1-10)
+
+
+
+GMD-Forschungsstelle-Karlsruhe    Last change:                  1
+
+
+
+
+
+
+REX(1)                   USER COMMANDS                     REX(1)
+
+
+
+     n    do not optimize table size
+          Effects: fast  scanner,  large  tables  (factor  1-10),
+          short generation time
+
+          default: improve table size
+          Effects: slower  scanner  (0-5%),  medium  size  tables
+          (factor 1-2), medium generation time (factor 1-2)
+
+     w    suppress warnings
+
+     g    generate # line directives
+
+     b    do not partition charcater set into blocks
+
+     1    print statistics about the generated lexical analyser
+
+     ldir dir is the directory where Rex finds its table and data
+          files
+
+FILES
+     if output is in C:
+
+     <Scanner>.h         specification of the generated scanner
+     <Scanner>.c         body of the generated scanner
+     <Scanner>Source.h   specification of support module source
+     <Scanner>Source.c   body of support module source
+     <Scanner>Drv.c      main program to serve as test driver
+     if output is in Modula-2:
+
+     <Scanner>.md        definition module of the generated scanner
+     <Scanner>.mi        implementation module of the generated scanner
+     <Scanner>Source.md  definition module of support module source
+     <Scanner>Source.mi  implementation module of support module source
+     <Scanner>Drv.mi     main program to serve as test driver
+     <Scanner>.Tab       tables to control the generated scanner
+
+SEE ALSO
+     J. Grosch: "Rex - A Scanner Generator", GMD Forschungsstelle
+     an  der  Universitaet  Karlsruhe, Compiler Generation Report
+     No. 5, 1987
+     J. Grosch:  "Efficient  Generation  of  Lexical  Analysers",
+     Software  -  Practice & Experience, 19 (11), 1089-1103, Nov.
+     1989
+
+
+
+
+
+
+
+
+
+
+
+
+GMD-Forschungsstelle-Karlsruhe    Last change:                  2
+
+
+

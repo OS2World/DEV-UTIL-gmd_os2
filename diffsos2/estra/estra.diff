@@ -1,0 +1,557 @@
+*** m2c/ArgCheck.c      Wed Jun 16 10:00:48 1993
+--- oldm2c/ArgCheck.c   Fri Sep 25 04:07:46 1992
+***************
+*** 66,68 ****
+
+! static CHAR NULL [] = "NUL";
+  struct S_1 {
+--- 66,68 ----
+
+! static CHAR NULL [] = "/dev/null";
+  struct S_1 {
+***************
+*** 191,194 ****
+    if (!SourceFileIsOpen) {
+!     Listing_SourceFile = IO_ReadOpen(NULL, 3L);
+!     Checks_CheckReadOpen(&Listing_SourceFile, NULL, 3L);
+    }
+--- 191,194 ----
+    if (!SourceFileIsOpen) {
+!     Listing_SourceFile = IO_ReadOpen(NULL, 9L);
+!     Checks_CheckReadOpen(&Listing_SourceFile, NULL, 9L);
+    }
+*** m2c/CodeM2.c        Wed Jun 16 10:01:12 1993
+--- oldm2c/CodeM2.c     Fri Sep 25 04:07:48 1992
+***************
+*** 75,77 ****
+
+! static CHAR cNullDevice [] = "NUL";
+  static CHAR cDefPost [] = ".md";
+--- 75,77 ----
+
+! static CHAR cNullDevice [] = "/dev/null";
+  static CHAR cDefPost [] = ".md";
+*** m2c/Makefile        Sun Jul 25 15:55:34 1993
+--- oldm2c/Makefile     Fri Sep 25 04:07:42 1992
+***************
+*** 1,15 ****
+  BIN     = $(HOME)/bin
+  LIB     = $(HOME)/lib
+! OPTA    = -s -O -D__STDC__
+! #OPTA    = -ggdb -D__STDC__
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__
+! #OPTLIB  = -Zomf -Zsys -g -D__STDC__
+! CC      = gcc
+!
+!                 # binaries used
+! OBJS    = estra.$(OBJ) ArgCheck.$(OBJ) Automaton.$(OBJ) CodeM2.$(OBJ) Complete.$(OBJ) Environs.$(OBJ) \
+!           Grammar.$(OBJ) Info.$(OBJ) Match.$(OBJ) Parser.$(OBJ) Patterns.$(OBJ) Reduced.$(OBJ) \
+!           Scanner.$(OBJ) Semantics.$(OBJ) Test.$(OBJ) Tree.$(OBJ) Types.$(OBJ)
+
+                  # C library (reuse)
+  REUSE   = ../../reuse/m2c
+--- 1,7 ----
+  BIN   = $(HOME)/bin
+  LIB   = $(HOME)/lib
+! OPT   = -O
+! CC    = cc
+
+                  # C library (reuse)
+  REUSE = ../../reuse/m2c
+***************
+*** 18,36 ****
+  COMMON  = ../../common/m2c
+
+                  # C libraries
+! CLIBS   = -lcommon -lreuse
+
+                  # options for C compiler
+! CFLAGS  = -I$(COMMON) -I$(REUSE) $(OPT) -L$(COMMON) -L$(REUSE)
+
+  M2FLAGS = -c
+
+! all     :
+! !IFNDEF OMF
+!         nmake "OBJ=o" "OPT=$(OPTA)" "DEF=" estra
+! !ELSE
+!         nmake "OBJ=obj" "OPT=$(OPTLIB)" "DEF=estra.def" estra
+! !ENDIF
+
+  install:        estra estra.sh $(LIB)/estra
+          if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+--- 10,23 ----
+  COMMON        = ../../common/m2c
+
+                  # C libraries
+! CLIBS = $(COMMON)/libcommon.a $(REUSE)/libreuse.a
+
+                  # options for C compiler
+! CFLAGS        = -w -I$(COMMON) -I$(REUSE) $(OPT)
+
+  M2FLAGS       = -c
+
+! all   : estra
+
+  install:      estra estra.sh $(LIB)/estra
+        if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+***************
+*** 48,65 ****
+
+  # swap all byte pairs of the files Scanner.Tab and Parser.Tab
+
+! bin.conv:       ..\..\os2tools\swapbytes.exe
+!         ..\..\os2tools\swapbytes Scanner.Tab Scanner.New
+!         mv Scanner.New Scanner.Tab
+!         ..\..\os2tools\swapbytes Parser.Tab Parser.New
+!         mv Parser.New Parser.Tab
+!
+! ..\..\os2tools\swapbytes.exe:  ..\..\os2tools\swapbytes.c
+!         $(CC) -o ..\..\os2tools\swapbytes.exe ..\..\os2tools\swapbytes.c
+!
+! # bin.conv:
+! #         dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! #         dd conv=swab < Parser.Tab > .Parser.Tab; mv .Parser.Tab Parser.Tab
+
+
+  # HEAD
+--- 35,43 ----
+
+  # swap all byte pairs of the files Scanner.Tab and Parser.Tab
+
+! bin.conv:
+!       dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+!       dd conv=swab < Parser.Tab > .Parser.Tab; mv .Parser.Tab Parser.Tab
+
+
+  # HEAD
+***************
+*** 67,237 ****
+  sources : ArgCheck.h
+
+  sources : ArgCheck.c
+! ArgCheck.$(OBJ)      : ArgCheck.c ArgCheck.h
+! ArgCheck.$(OBJ)      : Scanner.h
+
+  sources : Automaton.h
+
+  sources : Automaton.c
+! Automaton.$(OBJ)     : Automaton.c Automaton.h
+! Automaton.$(OBJ)     : Info.h
+
+  sources : CodeM2.h
+
+  sources : CodeM2.c
+! CodeM2.$(OBJ)        : CodeM2.c CodeM2.h
+! CodeM2.$(OBJ)        : ArgCheck.h
+! CodeM2.$(OBJ)        : Automaton.h
+! CodeM2.$(OBJ)        : Environs.h
+! CodeM2.$(OBJ)        : Grammar.h
+! CodeM2.$(OBJ)        : Match.h
+! CodeM2.$(OBJ)        : Parser.h
+! CodeM2.$(OBJ)        : Scanner.h
+! CodeM2.$(OBJ)        : Tree.h
+! CodeM2.$(OBJ)        : Types.h
+! CodeM2.$(OBJ)        : ArgCheck.h
+
+  sources : Complete.h
+  Complete.h      : Environs.h
+
+  sources : Complete.c
+! Complete.$(OBJ)      : Complete.c Complete.h
+! Complete.$(OBJ)      : Environs.h
+! Complete.$(OBJ)      : Patterns.h
+
+  sources : Environs.h
+  Environs.h      : Patterns.h
+
+  sources : Environs.c
+! Environs.$(OBJ)      : Environs.c Environs.h
+! Environs.$(OBJ)      : Grammar.h
+! Environs.$(OBJ)      : Patterns.h
+! Environs.$(OBJ)      : Scanner.h
+! Environs.$(OBJ)      : Types.h
+
+  sources : Grammar.h
+
+  sources : Grammar.c
+! Grammar.$(OBJ)       : Grammar.c Grammar.h
+! Grammar.$(OBJ)       : Scanner.h
+! Grammar.$(OBJ)       : Types.h
+! Grammar.$(OBJ)       : Info.h
+
+  sources : Info.h
+
+  sources : Info.c
+! Info.$(OBJ)  : Info.c Info.h
+! Info.$(OBJ)  : Patterns.h
+
+  sources : Match.h
+
+  sources : Match.c
+! Match.$(OBJ) : Match.c Match.h
+! Match.$(OBJ) : ArgCheck.h
+! Match.$(OBJ) : Automaton.h
+! Match.$(OBJ) : Environs.h
+! Match.$(OBJ) : Grammar.h
+! Match.$(OBJ) : Parser.h
+! Match.$(OBJ) : Patterns.h
+! Match.$(OBJ) : Scanner.h
+! Match.$(OBJ) : Types.h
+! Match.$(OBJ) : Patterns.h
+! Match.$(OBJ) : ArgCheck.h
+! Match.$(OBJ) : Automaton.h
+! Match.$(OBJ) : Patterns.h
+
+  sources : Parser.h
+  Parser.h        : Tree.h
+
+  sources : Parser.c
+! Parser.$(OBJ)        : Parser.c Parser.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Tree.h
+! Parser.$(OBJ)        : Tree.h
+
+  sources : Patterns.h
+
+  sources : Patterns.c
+! Patterns.$(OBJ)      : Patterns.c Patterns.h
+! Patterns.$(OBJ)      : Grammar.h
+! Patterns.$(OBJ)      : Scanner.h
+! Patterns.$(OBJ)      : Types.h
+! Patterns.$(OBJ)      : Scanner.h
+
+  sources : Reduced.h
+
+  sources : Reduced.c
+! Reduced.$(OBJ)       : Reduced.c Reduced.h
+! Reduced.$(OBJ)       : Grammar.h
+! Reduced.$(OBJ)       : Scanner.h
+! Reduced.$(OBJ)       : Types.h
+
+  sources : Scanner.h
+
+  sources : Scanner.c
+! Scanner.$(OBJ)       : Scanner.c Scanner.h
+
+  sources : Semantics.h
+
+  sources : Semantics.c
+! Semantics.$(OBJ)     : Semantics.c Semantics.h
+! Semantics.$(OBJ)     : Complete.h
+! Semantics.$(OBJ)     : Environs.h
+! Semantics.$(OBJ)     : Grammar.h
+! Semantics.$(OBJ)     : Parser.h
+! Semantics.$(OBJ)     : Patterns.h
+! Semantics.$(OBJ)     : Reduced.h
+! Semantics.$(OBJ)     : Scanner.h
+! Semantics.$(OBJ)     : Tree.h
+! Semantics.$(OBJ)     : Types.h
+
+  sources : Test.h
+
+  sources : Test.c
+! Test.$(OBJ)  : Test.c Test.h
+! Test.$(OBJ)  : ArgCheck.h
+
+  sources : Tree.h
+  Tree.h  : Environs.h
+  Tree.h  : Patterns.h
+
+  sources : Tree.c
+! Tree.$(OBJ)  : Tree.c Tree.h
+
+  sources : Types.h
+
+  sources : Types.c
+! Types.$(OBJ) : Types.c Types.h
+! Types.$(OBJ) : Scanner.h
+
+  sources : estra.c
+! estra.$(OBJ) : estra.c
+! estra.$(OBJ) : ArgCheck.h
+! estra.$(OBJ) : CodeM2.h
+! estra.$(OBJ) : Info.h
+! estra.$(OBJ) : Match.h
+! estra.$(OBJ) : Parser.h
+! estra.$(OBJ) : Scanner.h
+! estra.$(OBJ) : Semantics.h
+! estra.$(OBJ) : Test.h
+! estra.$(OBJ) : ArgCheck.h
+! estra.$(OBJ) : Grammar.h
+! estra.$(OBJ) : Parser.h
+! estra.$(OBJ) : Test.h
+! estra.$(OBJ) : Tree.h
+
+- SYSTEM_.$(OBJ)       : SYSTEM_.c SYSTEM_.h
+-
+- estra   : $(OBJS)
+-         $(CC) $(CFLAGS) -o $*.exe $(OBJS) $(CLIBS)
+-
+  # TAIL
+
+  clean   :
+!         rm -f core *.$(OBJ)
+
+! .SUFFIXES: .md .mi .h .c .$(OBJ)
+
+  .mi.c:
+          mtc $(M2FLAGS) $*.mi;
+--- 45,251 ----
+  sources       : ArgCheck.h
+
+  sources       : ArgCheck.c
+! ArgCheck.o    : ArgCheck.c ArgCheck.h
+! ArgCheck.o    : Scanner.h
+
+  sources       : Automaton.h
+
+  sources       : Automaton.c
+! Automaton.o   : Automaton.c Automaton.h
+! Automaton.o   : Info.h
+
+  sources       : CodeM2.h
+
+  sources       : CodeM2.c
+! CodeM2.o      : CodeM2.c CodeM2.h
+! CodeM2.o      : ArgCheck.h
+! CodeM2.o      : Automaton.h
+! CodeM2.o      : Environs.h
+! CodeM2.o      : Grammar.h
+! CodeM2.o      : Match.h
+! CodeM2.o      : Parser.h
+! CodeM2.o      : Scanner.h
+! CodeM2.o      : Tree.h
+! CodeM2.o      : Types.h
+! CodeM2.o      : ArgCheck.h
+
+  sources       : Complete.h
+  Complete.h    : Environs.h
+
+  sources       : Complete.c
+! Complete.o    : Complete.c Complete.h
+! Complete.o    : Environs.h
+! Complete.o    : Patterns.h
+
+  sources       : Environs.h
+  Environs.h    : Patterns.h
+
+  sources       : Environs.c
+! Environs.o    : Environs.c Environs.h
+! Environs.o    : Grammar.h
+! Environs.o    : Patterns.h
+! Environs.o    : Scanner.h
+! Environs.o    : Types.h
+
+  sources       : Grammar.h
+
+  sources       : Grammar.c
+! Grammar.o     : Grammar.c Grammar.h
+! Grammar.o     : Scanner.h
+! Grammar.o     : Types.h
+! Grammar.o     : Info.h
+
+  sources       : Info.h
+
+  sources       : Info.c
+! Info.o        : Info.c Info.h
+! Info.o        : Patterns.h
+
+  sources       : Match.h
+
+  sources       : Match.c
+! Match.o       : Match.c Match.h
+! Match.o       : ArgCheck.h
+! Match.o       : Automaton.h
+! Match.o       : Environs.h
+! Match.o       : Grammar.h
+! Match.o       : Parser.h
+! Match.o       : Patterns.h
+! Match.o       : Scanner.h
+! Match.o       : Types.h
+! Match.o       : Patterns.h
+! Match.o       : ArgCheck.h
+! Match.o       : Automaton.h
+! Match.o       : Patterns.h
+
+  sources       : Parser.h
+  Parser.h      : Tree.h
+
+  sources       : Parser.c
+! Parser.o      : Parser.c Parser.h
+! Parser.o      : Scanner.h
+! Parser.o      : Scanner.h
+! Parser.o      : Tree.h
+! Parser.o      : Tree.h
+
+  sources       : Patterns.h
+
+  sources       : Patterns.c
+! Patterns.o    : Patterns.c Patterns.h
+! Patterns.o    : Grammar.h
+! Patterns.o    : Scanner.h
+! Patterns.o    : Types.h
+! Patterns.o    : Scanner.h
+
+  sources       : Reduced.h
+
+  sources       : Reduced.c
+! Reduced.o     : Reduced.c Reduced.h
+! Reduced.o     : Grammar.h
+! Reduced.o     : Scanner.h
+! Reduced.o     : Types.h
+
+  sources       : Scanner.h
+
+  sources       : Scanner.c
+! Scanner.o     : Scanner.c Scanner.h
+
+  sources       : Semantics.h
+
+  sources       : Semantics.c
+! Semantics.o   : Semantics.c Semantics.h
+! Semantics.o   : Complete.h
+! Semantics.o   : Environs.h
+! Semantics.o   : Grammar.h
+! Semantics.o   : Parser.h
+! Semantics.o   : Patterns.h
+! Semantics.o   : Reduced.h
+! Semantics.o   : Scanner.h
+! Semantics.o   : Tree.h
+! Semantics.o   : Types.h
+
+  sources       : Test.h
+
+  sources       : Test.c
+! Test.o        : Test.c Test.h
+! Test.o        : ArgCheck.h
+
+  sources       : Tree.h
+  Tree.h        : Environs.h
+  Tree.h        : Patterns.h
+
+  sources       : Tree.c
+! Tree.o        : Tree.c Tree.h
+
+  sources       : Types.h
+
+  sources       : Types.c
+! Types.o       : Types.c Types.h
+! Types.o       : Scanner.h
+
+  sources       : estra.c
+! all   : estra
+! estra.o       : estra.c
+! estra.o       : ArgCheck.h
+! estra.o       : CodeM2.h
+! estra.o       : Info.h
+! estra.o       : Match.h
+! estra.o       : Parser.h
+! estra.o       : Scanner.h
+! estra.o       : Semantics.h
+! estra.o       : Test.h
+! estra.o       : ArgCheck.h
+! estra.o       : Grammar.h
+! estra.o       : Parser.h
+! estra.o       : Test.h
+! estra.o       : Tree.h
+!
+! SYSTEM_.o     : SYSTEM_.c SYSTEM_.h
+!
+! estra : $(SYSTEM)     \
+!       estra.o \
+!       Tree.o  \
+!       Patterns.o      \
+!       Scanner.o       \
+!       Types.o \
+!       Grammar.o       \
+!       Info.o  \
+!       Environs.o      \
+!       Test.o  \
+!       ArgCheck.o      \
+!       Parser.o        \
+!       Semantics.o     \
+!       Reduced.o       \
+!       Complete.o      \
+!       Match.o \
+!       Automaton.o     \
+!       CodeM2.o        \
+! ;     $(CC) $(CFLAGS) -o estra $(SYSTEM)      \
+!       estra.o \
+!       Tree.o  \
+!       Patterns.o      \
+!       Scanner.o       \
+!       Types.o \
+!       Grammar.o       \
+!       Info.o  \
+!       Environs.o      \
+!       Test.o  \
+!       ArgCheck.o      \
+!       Parser.o        \
+!       Semantics.o     \
+!       Reduced.o       \
+!       Complete.o      \
+!       Match.o \
+!       Automaton.o     \
+!       CodeM2.o        \
+!       $(CLIBS)
+
+  # TAIL
+
+  clean :
+!       rm -f core *.o
+
+! .SUFFIXES: .md .mi .h .c .o
+
+  .mi.c:
+        mtc $(M2FLAGS) $*.mi;
+***************
+*** 239,243 ****
+  .md.h:
+          mtc $(M2FLAGS) $*.md;
+
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 253,257 ----
+  .md.h:
+        mtc $(M2FLAGS) $*.md;
+
+! .c.o:
+!       $(CC) $(CFLAGS) -c $*.c
+*** src/ArgCheck.mi     Wed Jun 16 09:57:42 1993
+--- oldsrc/ArgCheck.mi  Fri Sep 25 04:08:28 1992
+***************
+*** 28,32 ****
+
+! CONST
+! (*  NULL              = "/dev/null"; *)
+!     NULL              = "NUL";
+
+--- 28,30 ----
+
+! CONST NULL            = "/dev/null";
+
+*** src/CodeM2.mi       Wed Jun 16 09:57:40 1993
+--- oldsrc/CodeM2.mi    Fri Sep 25 04:09:06 1992
+***************
+*** 54,57 ****
+  CONST
+! (* cNullDevice   = '/dev/null'; *)
+!   cNullDevice   = 'NUL';
+    cDefPost      = '.md';
+--- 54,56 ----
+  CONST
+!   cNullDevice = '/dev/null';
+    cDefPost    = '.md';
+*** src/CodeM2.MI_      Wed Jun 16 09:57:38 1993
+--- oldsrc/CodeM2.MI_   Fri Sep 25 04:08:30 1992
+***************
+*** 54,57 ****
+  CONST
+! (* cNullDevice   = '/dev/null'; *)
+!   cNullDevice   = 'NUL';
+    cDefPost      = '.md';
+--- 54,56 ----
+  CONST
+!   cNullDevice = '/dev/null';
+    cDefPost    = '.md';

@@ -1,0 +1,5 @@
+NAME            GetImports WINDOWCOMPAT
+
+DESCRIPTION     'GetImports, (C) GMD Karlsruhe 1992, ported by Eduard Kappel'
+PROTMODE
+STACKSIZE       32768

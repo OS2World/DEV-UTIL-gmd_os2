@@ -1,0 +1,1034 @@
+*** c/Makefile  Sun Jul 25 00:58:18 1993
+--- oldc/Makefile       Fri Sep 25 03:54:28 1992
+***************
+*** 1,29 ****
+! LIBS    = -L. -lreuse
+! OPTA    = -s -O -D__STDC__ -DMSDOS
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__ -DMSDOS
+! CFLAGS  = $(OPT)
+! CC      = gcc
+! OBJS    = Errors.$(OBJ) Source.$(OBJ) Positions.$(OBJ) \
+!           Idents.$(OBJ) Sets.$(OBJ) DynArray.$(OBJ) StringMem.$(OBJ) Memory.$(OBJ) Time.$(OBJ) General.$(OBJ) System.$(OBJ)
+
+-
+  # targets
+
+! libs    :
+!         nmake "OBJ=o" "OPT=$(OPTA)" "REUSE=libreuse.a" libreuse.a
+!         nmake "OBJ=obj" "OPT=$(OPTLIB)" "REUSE=libreuse.lib" libreuse.lib
+
+
+! libreuse.a      : $(OBJS)
+!         rm -f libreuse.a
+!         ar uc libreuse.a $(OBJS)
+! #       ranlib libreuse.a
+! #       emx-gcc substitute
+!         ar s  libreuse.a
+!
+! libreuse.lib    : $(OBJS)
+!         rm -f libreuse.lib
+!         emxomfar uc libreuse.lib $(OBJS)
+
+  install:        $(TARGET)
+          install -c -m 664 $(REUSE) $(LIB)
+--- 1,26 ----
+! LIB   = $(HOME)/lib
+! INCDIR        = $(LIB)/include
+! TARGET        = SUN
+! REUSE = libreuse.a
+! OPT   = -O
+! UNIX  = UNIX
+! CFLAGS        = $(OPT) -D$(UNIX) -D$(TARGET)
+! CC    = cc
+! OBJS  = System.o General.o Memory.o DynArray.o StringMem.o Idents.o Sets.o Time.o \
+!         Errors.o Positions.o Source.o
+
+  # targets
+
+! all:  $(TARGET)
+!
+! PCS10 PCS20:  $(REUSE)
+
++ SUN:  $(REUSE)
++       ranlib $(REUSE)
+
+! $(REUSE):     $(OBJS)
+!       ar uc $(REUSE) $(OBJS)
+!       -ranlib $(REUSE)
+
+  install:      $(TARGET)
+        install -c -m 664 $(REUSE) $(LIB)
+***************
+*** 32,82 ****
+          chmod u+w,a+r $(INCDIR)/*.h
+
+  clean:
+!         rm -f *.$(OBJ) *Drv core
+
+  # test programs
+
+  test:   MemoryDrv DynArrDrv SetsDrv IdentsDrv StrMemDrv ErrorsDrv
+
+! MemoryDrv:      MemoryDrv.$(OBJ) $(REUSE)
+!         $(CC) -o MemoryDrv.exe $(CFLAGS) MemoryDrv.$(OBJ) $(LIBS)
+
+! DynArrDrv:      DynArrDrv.$(OBJ) $(REUSE)
+!         $(CC) -o DynArrDrv.exe $(CFLAGS) DynArrDrv.$(OBJ) $(LIBS)
+
+! SetsDrv:        SetsDrv.$(OBJ) $(REUSE)
+!         $(CC) -o SetsDrv.exe $(CFLAGS) SetsDrv.$(OBJ) $(LIBS)
+
+! IdentsDrv:      IdentsDrv.$(OBJ) $(REUSE)
+!         $(CC) -o IdentsDrv.exe $(CFLAGS) IdentsDrv.$(OBJ) $(LIBS)
+
+! StrMemDrv:      StrMemDrv.$(OBJ) $(REUSE)
+!         $(CC) -o StrMemDrv.exe $(CFLAGS) StrMemDrv.$(OBJ) $(LIBS)
+
+! ErrorsDrv:      ErrorsDrv.$(OBJ) $(REUSE)
+!         $(CC) -o ErrorsDrv.exe $(CFLAGS) ErrorsDrv.$(OBJ) $(LIBS)
+
+  lint:
+          lint -u *.c
+
+  # dependencies
+
+! DynArray.$(OBJ):     DynArray.h Memory.h
+! DynArrDrv.$(OBJ):    DynArray.h
+! General.$(OBJ):      General.h
+! Idents.$(OBJ):       Idents.h StringMem.h DynArray.h
+! Memory.$(OBJ):       Memory.h System.h General.h
+! MemoryDrv.$(OBJ):    Memory.h
+! Sets.$(OBJ):         Sets.h DynArray.h General.h
+! SetsDrv.$(OBJ):      Sets.h
+! StringMem.$(OBJ):    StringMem.h DynArray.h
+! Time.$(OBJ):         Time.h
+! Positions.$(OBJ):    Positions.h
+! Errors.$(OBJ):       Errors.h Positions.h
+! ErrorsDrv.$(OBJ):    Errors.h Positions.h Sets.h Idents.h
+! Source.$(OBJ):       Source.h System.h
+
+! .SUFFIXES:      .c .$(OBJ)
+
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 29,79 ----
+        chmod u+w,a+r $(INCDIR)/*.h
+
+  clean:
+!       rm -f *.o *Drv core
+
+  # test programs
+
+  test: MemoryDrv DynArrDrv SetsDrv IdentsDrv StrMemDrv ErrorsDrv
+
+! MemoryDrv:    MemoryDrv.o $(REUSE)
+!       $(CC) -o MemoryDrv $(CFLAGS) MemoryDrv.o $(REUSE)
+
+! DynArrDrv:    DynArrDrv.o $(REUSE)
+!       $(CC) -o DynArrDrv $(CFLAGS) DynArrDrv.o $(REUSE)
+
+! SetsDrv:      SetsDrv.o $(REUSE)
+!       $(CC) -o SetsDrv $(CFLAGS) SetsDrv.o $(REUSE)
+
+! IdentsDrv:    IdentsDrv.o $(REUSE)
+!       $(CC) -o IdentsDrv $(CFLAGS) IdentsDrv.o $(REUSE)
+
+! StrMemDrv:    StrMemDrv.o $(REUSE)
+!       $(CC) -o StrMemDrv $(CFLAGS) StrMemDrv.o $(REUSE)
+
+! ErrorsDrv:    ErrorsDrv.o $(REUSE)
+!       $(CC) -o ErrorsDrv $(CFLAGS) ErrorsDrv.o $(REUSE)
+
+  lint:
+        lint -u *.c
+
+  # dependencies
+
+! DynArray.o:   DynArray.h Memory.h
+! DynArrDrv.o:  DynArray.h
+! General.o:    General.h
+! Idents.o:     Idents.h StringMem.h DynArray.h
+! Memory.o:     Memory.h System.h General.h
+! MemoryDrv.o:  Memory.h
+! Sets.o:               Sets.h DynArray.h General.h
+! SetsDrv.o:    Sets.h
+! StringMem.o:  StringMem.h DynArray.h
+! Time.o:               Time.h
+! Positions.o:  Positions.h
+! Errors.o:     Errors.h Positions.h
+! ErrorsDrv.o:  Errors.h Positions.h Sets.h Idents.h
+! Source.o:     Source.h System.h
+
+! .SUFFIXES:    .c .o
+
+! .c.o:
+!       $(CC) $(CFLAGS) -c $*.c
+*** m2c/Makefile        Sat Jul 24 14:01:36 1993
+--- oldm2c/Makefile     Fri Sep 25 03:53:32 1992
+***************
+*** 1,98 ****
+! OPTA    = -s -O -D__STDC__ -DMSDOS
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__ -DMSDOS
+! CFLAGS  = $(OPT)
+! CC      = gcc
+  M2FLAGS = -c -d/usr/local/lib/mocka/lib
+! SYSTEM  = System.$(OBJ)
+
+! OBJS    = Errors.$(OBJ) Positions.$(OBJ) Source.$(OBJ) Times.$(OBJ) Texts.$(OBJ) Lists.$(OBJ) Layout.$(OBJ) \
+!           Checks.$(OBJ) Relations.$(OBJ) SetsC.$(OBJ) Sets.$(OBJ) Idents.$(OBJ) StringMem.$(OBJ) DynArray.$(OBJ) \
+!           StdIO.$(OBJ) Strings.$(OBJ) IO.$(OBJ) Heap.$(OBJ) Memory.$(OBJ) General.$(OBJ) Sort.$(OBJ) Arguments.$(OBJ) \
+!           System.$(OBJ) SYSTEM_.$(OBJ)
+!
+! CLIBS   = Arguments.$(OBJ) SYSTEM_.$(OBJ)
+!
+! libs    :
+!         nmake "OBJ=o" "OPT=$(OPTA)" libreuse.a
+!         nmake "OBJ=obj" "OPT=$(OPTLIB)" libreuse.lib
+
+  libreuse.a      : $(OBJS)
+-         rm -f libreuse.a
+          ar uc libreuse.a $(OBJS)
+! #       ranlib libreuse.a
+! #       emx-gcc substitute
+!         ar s  libreuse.a
+!
+! libreuse.lib    : $(OBJS)
+!         rm -f libreuse.lib
+!         emxomfar uc libreuse.lib $(OBJS)
+
+  # HEAD
+
+  sources : Checks.h
+
+  sources : Checks.c
+! Checks.$(OBJ)        : Checks.c Checks.h
+! Checks.$(OBJ)        : IO.h
+! Checks.$(OBJ)        : System.h
+
+  sources : DynArrDrv.c
+  all     : DynArrDrv
+! DynArrDrv.$(OBJ)     : DynArrDrv.c
+! DynArrDrv.$(OBJ)     : DynArray.h
+! DynArrDrv.$(OBJ)     : IO.h
+
+  sources : DynArray.h
+
+  sources : DynArray.c
+! DynArray.$(OBJ)      : DynArray.c DynArray.h
+! DynArray.$(OBJ)      : General.h
+! DynArray.$(OBJ)      : Memory.h
+! DynArray.$(OBJ)      : IO.h
+
+  sources : Errors.h
+  Errors.h        : Positions.h
+  Errors.h        : IO.h
+
+  sources : Errors.c
+! Errors.$(OBJ)        : Errors.c Errors.h
+! Errors.$(OBJ)        : Memory.h
+! Errors.$(OBJ)        : IO.h
+! Errors.$(OBJ)        : Positions.h
+! Errors.$(OBJ)        : StringMem.h
+! Errors.$(OBJ)        : Strings.h
+! Errors.$(OBJ)        : Idents.h
+! Errors.$(OBJ)        : Sets.h
+! Errors.$(OBJ)        : Sort.h
+! Errors.$(OBJ)        : System.h
+! Errors.$(OBJ)        : Strings.h
+
+  sources : General.h
+
+  sources : General.c
+! General.$(OBJ)       : General.c General.h
+! General.$(OBJ)       : System.h
+
+  sources : Heap.h
+
+  sources : Heap.c
+! Heap.$(OBJ)  : Heap.c Heap.h
+! Heap.$(OBJ)  : General.h
+! Heap.$(OBJ)  : Memory.h
+
+  sources : IO.h
+  IO.h    : System.h
+
+  sources : IO.c
+! IO.$(OBJ)    : IO.c IO.h
+! IO.$(OBJ)    : General.h
+! IO.$(OBJ)    : Memory.h
+! IO.$(OBJ)    : System.h
+
+  sources : IODrv.c
+  all     : IODrv
+! IODrv.$(OBJ) : IODrv.c
+! IODrv.$(OBJ) : IO.h
+
+  sources : Idents.h
+  Idents.h        : IO.h
+--- 1,90 ----
+! OPT   = -O
+! UNIX  = UNIX
+! CFLAGS        = $(OPT) -D$(UNIX)
+! CC    = cc
+  M2FLAGS       = -c -d/usr/local/lib/mocka/lib
+! SYSTEM        = System.o
+
+! OBJS  = Checks.o DynArray.o General.o Heap.o IO.o Idents.o Layout.o \
+!         Lists.o Memory.o Relations.o Sets.o SetsC.o StdIO.o StringMem.o \
+!         Strings.o System.o Texts.o Times.o Arguments.o SYSTEM_.o \
+!         Positions.o Errors.o Source.o Sort.o
+! CLIBS = Arguments.o SYSTEM_.o
+
++
+  libreuse.a    : $(OBJS)
+        ar uc libreuse.a $(OBJS)
+!       ranlib libreuse.a
+!
+!
+! all   : $(CLIBS)
+
+  # HEAD
+
+  sources       : Checks.h
+
+  sources       : Checks.c
+! Checks.o      : Checks.c Checks.h
+! Checks.o      : IO.h
+! Checks.o      : System.h
+
+  sources       : DynArrDrv.c
+  all   : DynArrDrv
+! DynArrDrv.o   : DynArrDrv.c
+! DynArrDrv.o   : DynArray.h
+! DynArrDrv.o   : IO.h
+
+  sources       : DynArray.h
+
+  sources       : DynArray.c
+! DynArray.o    : DynArray.c DynArray.h
+! DynArray.o    : General.h
+! DynArray.o    : Memory.h
+! DynArray.o    : IO.h
+
+  sources       : Errors.h
+  Errors.h      : Positions.h
+  Errors.h      : IO.h
+
+  sources       : Errors.c
+! Errors.o      : Errors.c Errors.h
+! Errors.o      : Memory.h
+! Errors.o      : IO.h
+! Errors.o      : Positions.h
+! Errors.o      : StringMem.h
+! Errors.o      : Strings.h
+! Errors.o      : Idents.h
+! Errors.o      : Sets.h
+! Errors.o      : Sort.h
+! Errors.o      : System.h
+! Errors.o      : Strings.h
+
+  sources       : General.h
+
+  sources       : General.c
+! General.o     : General.c General.h
+! General.o     : System.h
+
+  sources       : Heap.h
+
+  sources       : Heap.c
+! Heap.o        : Heap.c Heap.h
+! Heap.o        : General.h
+! Heap.o        : Memory.h
+
+  sources       : IO.h
+  IO.h  : System.h
+
+  sources       : IO.c
+! IO.o  : IO.c IO.h
+! IO.o  : General.h
+! IO.o  : Memory.h
+! IO.o  : System.h
+
+  sources       : IODrv.c
+  all   : IODrv
+! IODrv.o       : IODrv.c
+! IODrv.o       : IO.h
+
+  sources       : Idents.h
+  Idents.h      : IO.h
+***************
+*** 100,259 ****
+  Idents.h        : StringMem.h
+
+  sources : Idents.c
+! Idents.$(OBJ)        : Idents.c Idents.h
+! Idents.$(OBJ)        : DynArray.h
+! Idents.$(OBJ)        : Strings.h
+! Idents.$(OBJ)        : StringMem.h
+! Idents.$(OBJ)        : IO.h
+! Idents.$(OBJ)        : Strings.h
+! Idents.$(OBJ)        : StringMem.h
+
+  sources : Layout.h
+  Layout.h        : IO.h
+
+  sources : Layout.c
+! Layout.$(OBJ)        : Layout.c Layout.h
+! Layout.$(OBJ)        : IO.h
+
+  sources : Lists.h
+  Lists.h : IO.h
+
+  sources : Lists.c
+! Lists.$(OBJ) : Lists.c Lists.h
+! Lists.$(OBJ) : Memory.h
+! Lists.$(OBJ) : IO.h
+
+  sources : Main.c
+  all     : Main
+! Main.$(OBJ)  : Main.c
+! Main.$(OBJ)  : General.h
+! Main.$(OBJ)  : Memory.h
+! Main.$(OBJ)  : Heap.h
+! Main.$(OBJ)  : DynArray.h
+! Main.$(OBJ)  : Lists.h
+! Main.$(OBJ)  : Strings.h
+! Main.$(OBJ)  : Texts.h
+! Main.$(OBJ)  : StringMem.h
+! Main.$(OBJ)  : Idents.h
+! Main.$(OBJ)  : Sets.h
+! Main.$(OBJ)  : SetsC.h
+! Main.$(OBJ)  : Relations.h
+! Main.$(OBJ)  : IO.h
+! Main.$(OBJ)  : StdIO.h
+! Main.$(OBJ)  : Layout.h
+! Main.$(OBJ)  : Positions.h
+! Main.$(OBJ)  : Errors.h
+! Main.$(OBJ)  : Sort.h
+! Main.$(OBJ)  : Source.h
+! Main.$(OBJ)  : System.h
+! Main.$(OBJ)  : Checks.h
+! Main.$(OBJ)  : Times.h
+
+  sources : Memory.h
+
+  sources : Memory.c
+! Memory.$(OBJ)        : Memory.c Memory.h
+! Memory.$(OBJ)        : General.h
+! Memory.$(OBJ)        : System.h
+
+  sources : MemoryDrv.c
+  all     : MemoryDrv
+! MemoryDrv.$(OBJ)     : MemoryDrv.c
+! MemoryDrv.$(OBJ)     : Memory.h
+! MemoryDrv.$(OBJ)     : IO.h
+
+  sources : Positions.h
+  Positions.h     : IO.h
+
+  sources : Positions.c
+! Positions.$(OBJ)     : Positions.c Positions.h
+! Positions.$(OBJ)     : IO.h
+
+  sources : RelDrv.c
+  all     : RelDrv
+! RelDrv.$(OBJ)        : RelDrv.c
+! RelDrv.$(OBJ)        : IO.h
+! RelDrv.$(OBJ)        : Sets.h
+! RelDrv.$(OBJ)        : Relations.h
+
+  sources : Relations.h
+  Relations.h     : IO.h
+  Relations.h     : Sets.h
+
+  sources : Relations.c
+! Relations.$(OBJ)     : Relations.c Relations.h
+! Relations.$(OBJ)     : IO.h
+! Relations.$(OBJ)     : DynArray.h
+! Relations.$(OBJ)     : Sets.h
+! Relations.$(OBJ)     : Sets.h
+
+  sources : Sets.h
+  Sets.h  : IO.h
+
+  sources : Sets.c
+! Sets.$(OBJ)  : Sets.c Sets.h
+! Sets.$(OBJ)  : General.h
+! Sets.$(OBJ)  : DynArray.h
+! Sets.$(OBJ)  : IO.h
+
+  sources : SetsC.h
+  SetsC.h : IO.h
+  SetsC.h : Sets.h
+
+  sources : SetsC.c
+! SetsC.$(OBJ) : SetsC.c SetsC.h
+! SetsC.$(OBJ) : Sets.h
+! SetsC.$(OBJ) : IO.h
+
+  sources : SetsDrv.c
+  all     : SetsDrv
+! SetsDrv.$(OBJ)       : SetsDrv.c
+! SetsDrv.$(OBJ)       : Sets.h
+! SetsDrv.$(OBJ)       : IO.h
+
+  sources : Sort.h
+
+  sources : Sort.c
+! Sort.$(OBJ)  : Sort.c Sort.h
+
+  sources : Source.h
+  Source.h        : System.h
+
+  sources : Source.c
+! Source.$(OBJ)        : Source.c Source.h
+! Source.$(OBJ)        : System.h
+
+  sources : StdIO.h
+
+  sources : StdIO.c
+! StdIO.$(OBJ) : StdIO.c StdIO.h
+! StdIO.$(OBJ) : IO.h
+! StdIO.$(OBJ) : IO.h
+
+  sources : StringMem.h
+  StringMem.h     : IO.h
+  StringMem.h     : Strings.h
+
+  sources : StringMem.c
+! StringMem.$(OBJ)     : StringMem.c StringMem.h
+! StringMem.$(OBJ)     : DynArray.h
+! StringMem.$(OBJ)     : Strings.h
+! StringMem.$(OBJ)     : IO.h
+
+  sources : Strings.h
+  Strings.h       : IO.h
+
+  sources : Strings.c
+! Strings.$(OBJ)       : Strings.c Strings.h
+! Strings.$(OBJ)       : General.h
+! Strings.$(OBJ)       : IO.h
+! Strings.$(OBJ)       : IO.h
+
+  sources : SysIODrv.c
+  all     : SysIODrv
+! SysIODrv.$(OBJ)      : SysIODrv.c
+! SysIODrv.$(OBJ)      : System.h
+! SysIODrv.$(OBJ)      : Checks.h
+
+  sources : System.h
+
+--- 92,251 ----
+  Idents.h      : StringMem.h
+
+  sources       : Idents.c
+! Idents.o      : Idents.c Idents.h
+! Idents.o      : DynArray.h
+! Idents.o      : Strings.h
+! Idents.o      : StringMem.h
+! Idents.o      : IO.h
+! Idents.o      : Strings.h
+! Idents.o      : StringMem.h
+
+  sources       : Layout.h
+  Layout.h      : IO.h
+
+  sources       : Layout.c
+! Layout.o      : Layout.c Layout.h
+! Layout.o      : IO.h
+
+  sources       : Lists.h
+  Lists.h       : IO.h
+
+  sources       : Lists.c
+! Lists.o       : Lists.c Lists.h
+! Lists.o       : Memory.h
+! Lists.o       : IO.h
+
+  sources       : Main.c
+  all   : Main
+! Main.o        : Main.c
+! Main.o        : General.h
+! Main.o        : Memory.h
+! Main.o        : Heap.h
+! Main.o        : DynArray.h
+! Main.o        : Lists.h
+! Main.o        : Strings.h
+! Main.o        : Texts.h
+! Main.o        : StringMem.h
+! Main.o        : Idents.h
+! Main.o        : Sets.h
+! Main.o        : SetsC.h
+! Main.o        : Relations.h
+! Main.o        : IO.h
+! Main.o        : StdIO.h
+! Main.o        : Layout.h
+! Main.o        : Positions.h
+! Main.o        : Errors.h
+! Main.o        : Sort.h
+! Main.o        : Source.h
+! Main.o        : System.h
+! Main.o        : Checks.h
+! Main.o        : Times.h
+
+  sources       : Memory.h
+
+  sources       : Memory.c
+! Memory.o      : Memory.c Memory.h
+! Memory.o      : General.h
+! Memory.o      : System.h
+
+  sources       : MemoryDrv.c
+  all   : MemoryDrv
+! MemoryDrv.o   : MemoryDrv.c
+! MemoryDrv.o   : Memory.h
+! MemoryDrv.o   : IO.h
+
+  sources       : Positions.h
+  Positions.h   : IO.h
+
+  sources       : Positions.c
+! Positions.o   : Positions.c Positions.h
+! Positions.o   : IO.h
+
+  sources       : RelDrv.c
+  all   : RelDrv
+! RelDrv.o      : RelDrv.c
+! RelDrv.o      : IO.h
+! RelDrv.o      : Sets.h
+! RelDrv.o      : Relations.h
+
+  sources       : Relations.h
+  Relations.h   : IO.h
+  Relations.h   : Sets.h
+
+  sources       : Relations.c
+! Relations.o   : Relations.c Relations.h
+! Relations.o   : IO.h
+! Relations.o   : DynArray.h
+! Relations.o   : Sets.h
+! Relations.o   : Sets.h
+
+  sources       : Sets.h
+  Sets.h        : IO.h
+
+  sources       : Sets.c
+! Sets.o        : Sets.c Sets.h
+! Sets.o        : General.h
+! Sets.o        : DynArray.h
+! Sets.o        : IO.h
+
+  sources       : SetsC.h
+  SetsC.h       : IO.h
+  SetsC.h       : Sets.h
+
+  sources       : SetsC.c
+! SetsC.o       : SetsC.c SetsC.h
+! SetsC.o       : Sets.h
+! SetsC.o       : IO.h
+
+  sources       : SetsDrv.c
+  all   : SetsDrv
+! SetsDrv.o     : SetsDrv.c
+! SetsDrv.o     : Sets.h
+! SetsDrv.o     : IO.h
+
+  sources       : Sort.h
+
+  sources       : Sort.c
+! Sort.o        : Sort.c Sort.h
+
+  sources       : Source.h
+  Source.h      : System.h
+
+  sources       : Source.c
+! Source.o      : Source.c Source.h
+! Source.o      : System.h
+
+  sources       : StdIO.h
+
+  sources       : StdIO.c
+! StdIO.o       : StdIO.c StdIO.h
+! StdIO.o       : IO.h
+! StdIO.o       : IO.h
+
+  sources       : StringMem.h
+  StringMem.h   : IO.h
+  StringMem.h   : Strings.h
+
+  sources       : StringMem.c
+! StringMem.o   : StringMem.c StringMem.h
+! StringMem.o   : DynArray.h
+! StringMem.o   : Strings.h
+! StringMem.o   : IO.h
+
+  sources       : Strings.h
+  Strings.h     : IO.h
+
+  sources       : Strings.c
+! Strings.o     : Strings.c Strings.h
+! Strings.o     : General.h
+! Strings.o     : IO.h
+! Strings.o     : IO.h
+
+  sources       : SysIODrv.c
+  all   : SysIODrv
+! SysIODrv.o    : SysIODrv.c
+! SysIODrv.o    : System.h
+! SysIODrv.o    : Checks.h
+
+  sources       : System.h
+
+***************
+*** 263,431 ****
+  Texts.h : Strings.h
+
+  sources : Texts.c
+! Texts.$(OBJ) : Texts.c Texts.h
+! Texts.$(OBJ) : IO.h
+! Texts.$(OBJ) : Lists.h
+! Texts.$(OBJ) : Strings.h
+! Texts.$(OBJ) : StringMem.h
+! Texts.$(OBJ) : Lists.h
+
+  sources : Times.h
+
+  sources : Times.c
+! Times.$(OBJ) : Times.c Times.h
+! Times.$(OBJ) : System.h
+! Times.$(OBJ) : IO.h
+
+! SYSTEM_.$(OBJ)       : SYSTEM_.c SYSTEM_.h
+
+  DynArrDrv       : $(SYSTEM)     \
+!         DynArrDrv.$(OBJ)     \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+!         DynArray.$(OBJ)      \
+! ;       $(CC) $(CFLAGS) -o DynArrDrv.exe $(SYSTEM)  \
+!         DynArrDrv.$(OBJ)     \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+!         DynArray.$(OBJ)      \
+          $(CLIBS)
+
+  IODrv   : $(SYSTEM)     \
+!         IODrv.$(OBJ) \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+! ;       $(CC) $(CFLAGS) -o IODrv.exe $(SYSTEM)      \
+!         IODrv.$(OBJ) \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+          $(CLIBS)
+
+  Main    : $(SYSTEM)     \
+!         Main.$(OBJ)  \
+!         Times.$(OBJ) \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+!         Checks.$(OBJ)        \
+!         Source.$(OBJ)        \
+!         Sort.$(OBJ)  \
+!         Errors.$(OBJ)        \
+!         Strings.$(OBJ)       \
+!         Sets.$(OBJ)  \
+!         DynArray.$(OBJ)      \
+!         Idents.$(OBJ)        \
+!         StringMem.$(OBJ)     \
+!         Positions.$(OBJ)     \
+!         Layout.$(OBJ)        \
+!         StdIO.$(OBJ) \
+!         Relations.$(OBJ)     \
+!         SetsC.$(OBJ) \
+!         Texts.$(OBJ) \
+!         Lists.$(OBJ) \
+!         Heap.$(OBJ)  \
+! ;       $(CC) $(CFLAGS) -o Main.exe $(SYSTEM)       \
+!         Main.$(OBJ)  \
+!         Times.$(OBJ) \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+!         Checks.$(OBJ)        \
+!         Source.$(OBJ)        \
+!         Sort.$(OBJ)  \
+!         Errors.$(OBJ)        \
+!         Strings.$(OBJ)       \
+!         Sets.$(OBJ)  \
+!         DynArray.$(OBJ)      \
+!         Idents.$(OBJ)        \
+!         StringMem.$(OBJ)     \
+!         Positions.$(OBJ)     \
+!         Layout.$(OBJ)        \
+!         StdIO.$(OBJ) \
+!         Relations.$(OBJ)     \
+!         SetsC.$(OBJ) \
+!         Texts.$(OBJ) \
+!         Lists.$(OBJ) \
+!         Heap.$(OBJ)  \
+          $(CLIBS)
+
+  MemoryDrv       : $(SYSTEM)     \
+!         MemoryDrv.$(OBJ)     \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+! ;       $(CC) $(CFLAGS) -o MemoryDrv.exe $(SYSTEM)  \
+!         MemoryDrv.$(OBJ)     \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+          $(CLIBS)
+
+  RelDrv  : $(SYSTEM)     \
+!         RelDrv.$(OBJ)        \
+!         Relations.$(OBJ)     \
+!         Sets.$(OBJ)  \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+!         DynArray.$(OBJ)      \
+! ;       $(CC) $(CFLAGS) -o RelDrv.exe $(SYSTEM)     \
+!         RelDrv.$(OBJ)        \
+!         Relations.$(OBJ)     \
+!         Sets.$(OBJ)  \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+!         DynArray.$(OBJ)      \
+          $(CLIBS)
+
+  SetsDrv : $(SYSTEM)     \
+!         SetsDrv.$(OBJ)       \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+!         Sets.$(OBJ)  \
+!         DynArray.$(OBJ)      \
+! ;       $(CC) $(CFLAGS) -o SetsDrv.exe $(SYSTEM)    \
+!         SetsDrv.$(OBJ)       \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+!         Sets.$(OBJ)  \
+!         DynArray.$(OBJ)      \
+          $(CLIBS)
+
+  SysIODrv        : $(SYSTEM)     \
+!         SysIODrv.$(OBJ)      \
+!         Checks.$(OBJ)        \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+! ;       $(CC) $(CFLAGS) -o SysIODrv.exe $(SYSTEM)   \
+!         SysIODrv.$(OBJ)      \
+!         Checks.$(OBJ)        \
+!         IO.$(OBJ)    \
+!         Memory.$(OBJ)        \
+!         General.$(OBJ)       \
+          $(CLIBS)
+
+  # TAIL
+
+  clean   :
+!         rm -f core *.$(OBJ)
+
+  CLEAN   : clean
+          rm -f libreuse.a
+-         rm -f libreuse.lib
+
+  cleanc  :
+!         rm -f Main.$(OBJ) DynArrDrv IODrv Main MemoryDrv RelDrv SetsDrv SysIODrv
+
+! .SUFFIXES: .md .mi .h .c .$(OBJ)
+
+  .mi.c:
+          mtc $(M2FLAGS) $*.mi;
+--- 255,422 ----
+  Texts.h       : Strings.h
+
+  sources       : Texts.c
+! Texts.o       : Texts.c Texts.h
+! Texts.o       : IO.h
+! Texts.o       : Lists.h
+! Texts.o       : Strings.h
+! Texts.o       : StringMem.h
+! Texts.o       : Lists.h
+
+  sources       : Times.h
+
+  sources       : Times.c
+! Times.o       : Times.c Times.h
+! Times.o       : System.h
+! Times.o       : IO.h
+
+! SYSTEM_.o     : SYSTEM_.c SYSTEM_.h
+
+  DynArrDrv     : $(SYSTEM)     \
+!       DynArrDrv.o     \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+!       DynArray.o      \
+! ;     $(CC) $(CFLAGS) -o DynArrDrv $(SYSTEM)  \
+!       DynArrDrv.o     \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+!       DynArray.o      \
+        $(CLIBS)
+
+  IODrv : $(SYSTEM)     \
+!       IODrv.o \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+! ;     $(CC) $(CFLAGS) -o IODrv $(SYSTEM)      \
+!       IODrv.o \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+        $(CLIBS)
+
+  Main  : $(SYSTEM)     \
+!       Main.o  \
+!       Times.o \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+!       Checks.o        \
+!       Source.o        \
+!       Sort.o  \
+!       Errors.o        \
+!       Strings.o       \
+!       Sets.o  \
+!       DynArray.o      \
+!       Idents.o        \
+!       StringMem.o     \
+!       Positions.o     \
+!       Layout.o        \
+!       StdIO.o \
+!       Relations.o     \
+!       SetsC.o \
+!       Texts.o \
+!       Lists.o \
+!       Heap.o  \
+! ;     $(CC) $(CFLAGS) -o Main $(SYSTEM)       \
+!       Main.o  \
+!       Times.o \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+!       Checks.o        \
+!       Source.o        \
+!       Sort.o  \
+!       Errors.o        \
+!       Strings.o       \
+!       Sets.o  \
+!       DynArray.o      \
+!       Idents.o        \
+!       StringMem.o     \
+!       Positions.o     \
+!       Layout.o        \
+!       StdIO.o \
+!       Relations.o     \
+!       SetsC.o \
+!       Texts.o \
+!       Lists.o \
+!       Heap.o  \
+        $(CLIBS)
+
+  MemoryDrv     : $(SYSTEM)     \
+!       MemoryDrv.o     \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+! ;     $(CC) $(CFLAGS) -o MemoryDrv $(SYSTEM)  \
+!       MemoryDrv.o     \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+        $(CLIBS)
+
+  RelDrv        : $(SYSTEM)     \
+!       RelDrv.o        \
+!       Relations.o     \
+!       Sets.o  \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+!       DynArray.o      \
+! ;     $(CC) $(CFLAGS) -o RelDrv $(SYSTEM)     \
+!       RelDrv.o        \
+!       Relations.o     \
+!       Sets.o  \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+!       DynArray.o      \
+        $(CLIBS)
+
+  SetsDrv       : $(SYSTEM)     \
+!       SetsDrv.o       \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+!       Sets.o  \
+!       DynArray.o      \
+! ;     $(CC) $(CFLAGS) -o SetsDrv $(SYSTEM)    \
+!       SetsDrv.o       \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+!       Sets.o  \
+!       DynArray.o      \
+        $(CLIBS)
+
+  SysIODrv      : $(SYSTEM)     \
+!       SysIODrv.o      \
+!       Checks.o        \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+! ;     $(CC) $(CFLAGS) -o SysIODrv $(SYSTEM)   \
+!       SysIODrv.o      \
+!       Checks.o        \
+!       IO.o    \
+!       Memory.o        \
+!       General.o       \
+        $(CLIBS)
+
+  # TAIL
+
+  clean :
+!       rm -f core *.o
+
+  CLEAN : clean
+        rm -f libreuse.a
+
+  cleanc        :
+!       rm -f Main.o DynArrDrv IODrv Main MemoryDrv RelDrv SetsDrv SysIODrv
+
+! .SUFFIXES: .md .mi .h .c .o
+
+  .mi.c:
+        mtc $(M2FLAGS) $*.mi;
+***************
+*** 433,437 ****
+  .md.h:
+          mtc $(M2FLAGS) $*.md;
+
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 424,428 ----
+  .md.h:
+        mtc $(M2FLAGS) $*.md;
+
+! .c.o:
+!       $(CC) $(CFLAGS) -c $*.c

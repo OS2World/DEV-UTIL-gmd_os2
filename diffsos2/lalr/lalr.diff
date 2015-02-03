@@ -1,0 +1,461 @@
+*** m2c/ArgCheck.c      Tue Apr 06 10:21:22 1993
+--- oldm2c/ArgCheck.c   Fri Sep 25 05:56:58 1992
+***************
+*** 91,93 ****
+  #define eNoOption     20
+! static CHAR DevNull [] = "NUL";
+  static CHAR Drv [] = "Drv";
+--- 91,93 ----
+  #define eNoOption     20
+! static CHAR DevNull [] = "/dev/null";
+  static CHAR Drv [] = "Drv";
+***************
+*** 362,365 ****
+    } else {
+!     ArgCheck_Def = IO_ReadOpen(DevNull, 3L);
+!     Checks_CheckReadOpen(&ArgCheck_Def, DevNull, 3L);
+    }
+--- 362,365 ----
+    } else {
+!     ArgCheck_Def = IO_ReadOpen(DevNull, 9L);
+!     Checks_CheckReadOpen(&ArgCheck_Def, DevNull, 9L);
+    }
+*** m2c/Check.c Tue Apr 06 10:22:08 1993
+--- oldm2c/Check.c      Fri Sep 25 05:56:58 1992
+***************
+*** 58,60 ****
+  #define eARepReadRedRed       79
+! static CHAR DevNull [] = "NUL";
+  static CHAR DEBUG [] = "_Debug";
+--- 58,60 ----
+  #define eARepReadRedRed       79
+! static CHAR DevNull [] = "/dev/null";
+  static CHAR DEBUG [] = "_Debug";
+***************
+*** 87,91 ****
+        SysError_SysErrorMessageI(Debug_dFile, (LONGCARD)Errors_eError, (LONGCARD)Errors_eString, ADR(string));
+!       Debug_dFile = IO_WriteOpen(DevNull, 3L);
+        if (SysError_StatIsBad(Debug_dFile)) {
+!         Strings_ArrayToString(DevNull, 3L, &string);
+          SysError_SysErrorMessageI(Debug_dFile, (LONGCARD)Errors_eFatal, (LONGCARD)Errors_eString, ADR(string));
+--- 87,91 ----
+        SysError_SysErrorMessageI(Debug_dFile, (LONGCARD)Errors_eError, (LONGCARD)Errors_eString, ADR(string));
+!       Debug_dFile = IO_WriteOpen(DevNull, 9L);
+        if (SysError_StatIsBad(Debug_dFile)) {
+!         Strings_ArrayToString(DevNull, 9L, &string);
+          SysError_SysErrorMessageI(Debug_dFile, (LONGCARD)Errors_eFatal, (LONGCARD)Errors_eString, ADR(string));
+*** m2c/Makefile        Sun Jul 25 13:48:20 1993
+--- oldm2c/Makefile     Fri Sep 25 03:56:56 1992
+***************
+*** 1,15 ****
+  BIN     = $(HOME)/bin
+  LIB     = $(HOME)/lib
+! OPTA    = -s -O -D__STDC__
+! #OPTA    = -ggdb -D__STDC__
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__
+! #OPTLIB  = -Zomf -Zsys -g -D__STDC__
+! CC      = gcc
+!
+!                 # binaries used
+! OBJS    = ArgCheck.$(OBJ) Automaton.$(OBJ) Check.$(OBJ) Compress.$(OBJ) Continue.$(OBJ) \
+!           Debug.$(OBJ) Default.$(OBJ) Final.$(OBJ) Gen.$(OBJ) GenLang.$(OBJ) Infos.$(OBJ) lalr.$(OBJ) \
+!           Lookahead.$(OBJ) LR.$(OBJ) Reduce.$(OBJ)
+
+                  # C library (reuse)
+  REUSE   = ../../reuse/m2c
+--- 1,7 ----
+  BIN   = $(HOME)/bin
+  LIB   = $(HOME)/lib
+! OPT   = -O
+! CC    = cc
+
+                  # C library (reuse)
+  REUSE = ../../reuse/m2c
+***************
+*** 18,39 ****
+  FRONT   = ../../front/m2c
+
+                  # C libraries
+! CLIBS   = -lfront -lreuse
+
+                  # options for C compiler
+! CFLAGS  = -I$(FRONT) -I$(REUSE) $(OPT) -L$(FRONT) -L$(REUSE)
+
+  M2FLAGS = -c
+
+  PLIB    = ParserDrv.mi Parser.md Parser.mi Errors.md Errors.mi Scanner.md Scanner.mi \
+            ParserDrv.c Parser.c Parser.h Errors.c Errors.h Scanner.c Scanner.h
+
+! all     :
+! !IFNDEF OMF
+!         nmake "OBJ=o" "OPT=$(OPTA)" "DEF=" lalr
+! !ELSE
+!         nmake "OBJ=obj" "OPT=$(OPTLIB)" "DEF=lalr.def" lalr
+! !ENDIF
+
+  install:        lalr lalr.sh $(LIB)/lalr
+          if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+--- 10,26 ----
+  FRONT = ../../front/m2c
+
+                  # C libraries
+! CLIBS = $(FRONT)/libfront.a $(REUSE)/libreuse.a
+
+                  # options for C compiler
+! CFLAGS        = -I$(FRONT) -I$(REUSE) $(OPT)
+
+  M2FLAGS       = -c
+
+  PLIB  = ParserDrv.mi Parser.md Parser.mi Errors.md Errors.mi Scanner.md Scanner.mi \
+          ParserDrv.c Parser.c Parser.h Errors.c Errors.h Scanner.c Scanner.h
+
+! all   : lalr
+
+  install:      lalr lalr.sh $(LIB)/lalr
+        if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+***************
+*** 54,190 ****
+  sources : ArgCheck.h
+
+  sources : ArgCheck.c
+! ArgCheck.$(OBJ)      : ArgCheck.c ArgCheck.h
+! ArgCheck.$(OBJ)      : Check.h
+! ArgCheck.$(OBJ)      : Debug.h
+! ArgCheck.$(OBJ)      : Default.h
+! ArgCheck.$(OBJ)      : Gen.h
+
+  sources : Automaton.h
+
+  sources : Automaton.c
+! Automaton.$(OBJ)     : Automaton.c Automaton.h
+! Automaton.$(OBJ)     : Continue.h
+
+  sources : Check.h
+
+  sources : Check.c
+! Check.$(OBJ) : Check.c Check.h
+! Check.$(OBJ) : Automaton.h
+! Check.$(OBJ) : Debug.h
+
+  sources : Compress.h
+  Compress.h      : Automaton.h
+  Compress.h      : Gen.h
+
+  sources : Compress.c
+! Compress.$(OBJ)      : Compress.c Compress.h
+! Compress.$(OBJ)      : Automaton.h
+! Compress.$(OBJ)      : Gen.h
+
+  sources : Continue.h
+  Continue.h      : Automaton.h
+
+  sources : Continue.c
+! Continue.$(OBJ)      : Continue.c Continue.h
+! Continue.$(OBJ)      : Automaton.h
+! Continue.$(OBJ)      : Gen.h
+
+  sources : Debug.h
+  Debug.h : Automaton.h
+
+  sources : Debug.c
+! Debug.$(OBJ) : Debug.c Debug.h
+! Debug.$(OBJ) : Automaton.h
+! Debug.$(OBJ) : Continue.h
+
+  sources : Default.h
+  Default.h       : Automaton.h
+  Default.h       : Gen.h
+
+  sources : Default.c
+! Default.$(OBJ)       : Default.c Default.h
+! Default.$(OBJ)       : Automaton.h
+! Default.$(OBJ)       : Gen.h
+
+  sources : Final.h
+
+  sources : Final.c
+! Final.$(OBJ) : Final.c Final.h
+! Final.$(OBJ) : Automaton.h
+! Final.$(OBJ) : Gen.h
+
+  sources : Gen.h
+  Gen.h   : Automaton.h
+
+  sources : Gen.c
+! Gen.$(OBJ)   : Gen.c Gen.h
+! Gen.$(OBJ)   : ArgCheck.h
+! Gen.$(OBJ)   : Automaton.h
+! Gen.$(OBJ)   : Compress.h
+! Gen.$(OBJ)   : Continue.h
+! Gen.$(OBJ)   : Default.h
+! Gen.$(OBJ)   : Final.h
+! Gen.$(OBJ)   : GenLang.h
+
+  sources : GenLang.h
+
+  sources : GenLang.c
+! GenLang.$(OBJ)       : GenLang.c GenLang.h
+! GenLang.$(OBJ)       : Automaton.h
+! GenLang.$(OBJ)       : Compress.h
+! GenLang.$(OBJ)       : ArgCheck.h
+! GenLang.$(OBJ)       : Gen.h
+
+  sources : Infos.h
+
+  sources : Infos.c
+! Infos.$(OBJ) : Infos.c Infos.h
+! Infos.$(OBJ) : Automaton.h
+! Infos.$(OBJ) : Compress.h
+! Infos.$(OBJ) : Gen.h
+
+  sources : LR.h
+
+  sources : LR.c
+! LR.$(OBJ)    : LR.c LR.h
+! LR.$(OBJ)    : Automaton.h
+
+  sources : Lookahead.h
+
+  sources : Lookahead.c
+! Lookahead.$(OBJ)     : Lookahead.c Lookahead.h
+! Lookahead.$(OBJ)     : Automaton.h
+! Lookahead.$(OBJ)     : Check.h
+
+  sources : Reduce.h
+
+  sources : Reduce.c
+! Reduce.$(OBJ)        : Reduce.c Reduce.h
+! Reduce.$(OBJ)        : Automaton.h
+
+  sources : lalr.c
+! lalr.$(OBJ)  : lalr.c
+! lalr.$(OBJ)  : ArgCheck.h
+! lalr.$(OBJ)  : Automaton.h
+! lalr.$(OBJ)  : Check.h
+! lalr.$(OBJ)  : Gen.h
+! lalr.$(OBJ)  : Infos.h
+! lalr.$(OBJ)  : Lookahead.h
+! lalr.$(OBJ)  : LR.h
+! lalr.$(OBJ)  : Reduce.h
+
+- SYSTEM_.$(OBJ)       : SYSTEM_.c SYSTEM_.h
+-
+- lalr    : $(OBJS)
+-         $(CC) $(CFLAGS) -o $*.exe $(OBJS) $(CLIBS) $(DEF)
+-
+  # TAIL
+
+  clean   :
+!         rm -f core *.$(OBJ)
+
+! .SUFFIXES: .md .mi .h .c .$(OBJ)
+
+  .mi.c:
+          mtc $(M2FLAGS) $*.mi;
+--- 41,209 ----
+  sources       : ArgCheck.h
+
+  sources       : ArgCheck.c
+! ArgCheck.o    : ArgCheck.c ArgCheck.h
+! ArgCheck.o    : Check.h
+! ArgCheck.o    : Debug.h
+! ArgCheck.o    : Default.h
+! ArgCheck.o    : Gen.h
+
+  sources       : Automaton.h
+
+  sources       : Automaton.c
+! Automaton.o   : Automaton.c Automaton.h
+! Automaton.o   : Continue.h
+
+  sources       : Check.h
+
+  sources       : Check.c
+! Check.o       : Check.c Check.h
+! Check.o       : Automaton.h
+! Check.o       : Debug.h
+
+  sources       : Compress.h
+  Compress.h    : Automaton.h
+  Compress.h    : Gen.h
+
+  sources       : Compress.c
+! Compress.o    : Compress.c Compress.h
+! Compress.o    : Automaton.h
+! Compress.o    : Gen.h
+
+  sources       : Continue.h
+  Continue.h    : Automaton.h
+
+  sources       : Continue.c
+! Continue.o    : Continue.c Continue.h
+! Continue.o    : Automaton.h
+! Continue.o    : Gen.h
+
+  sources       : Debug.h
+  Debug.h       : Automaton.h
+
+  sources       : Debug.c
+! Debug.o       : Debug.c Debug.h
+! Debug.o       : Automaton.h
+! Debug.o       : Continue.h
+
+  sources       : Default.h
+  Default.h     : Automaton.h
+  Default.h     : Gen.h
+
+  sources       : Default.c
+! Default.o     : Default.c Default.h
+! Default.o     : Automaton.h
+! Default.o     : Gen.h
+
+  sources       : Final.h
+
+  sources       : Final.c
+! Final.o       : Final.c Final.h
+! Final.o       : Automaton.h
+! Final.o       : Gen.h
+
+  sources       : Gen.h
+  Gen.h : Automaton.h
+
+  sources       : Gen.c
+! Gen.o : Gen.c Gen.h
+! Gen.o : ArgCheck.h
+! Gen.o : Automaton.h
+! Gen.o : Compress.h
+! Gen.o : Continue.h
+! Gen.o : Default.h
+! Gen.o : Final.h
+! Gen.o : GenLang.h
+
+  sources       : GenLang.h
+
+  sources       : GenLang.c
+! GenLang.o     : GenLang.c GenLang.h
+! GenLang.o     : Automaton.h
+! GenLang.o     : Compress.h
+! GenLang.o     : ArgCheck.h
+! GenLang.o     : Gen.h
+
+  sources       : Infos.h
+
+  sources       : Infos.c
+! Infos.o       : Infos.c Infos.h
+! Infos.o       : Automaton.h
+! Infos.o       : Compress.h
+! Infos.o       : Gen.h
+
+  sources       : LR.h
+
+  sources       : LR.c
+! LR.o  : LR.c LR.h
+! LR.o  : Automaton.h
+
+  sources       : Lookahead.h
+
+  sources       : Lookahead.c
+! Lookahead.o   : Lookahead.c Lookahead.h
+! Lookahead.o   : Automaton.h
+! Lookahead.o   : Check.h
+
+  sources       : Reduce.h
+
+  sources       : Reduce.c
+! Reduce.o      : Reduce.c Reduce.h
+! Reduce.o      : Automaton.h
+
+  sources       : lalr.c
+! all   : lalr
+! lalr.o        : lalr.c
+! lalr.o        : ArgCheck.h
+! lalr.o        : Automaton.h
+! lalr.o        : Check.h
+! lalr.o        : Gen.h
+! lalr.o        : Infos.h
+! lalr.o        : Lookahead.h
+! lalr.o        : LR.h
+! lalr.o        : Reduce.h
+!
+! SYSTEM_.o     : SYSTEM_.c SYSTEM_.h
+!
+! lalr  : $(SYSTEM)     \
+!       lalr.o  \
+!       Reduce.o        \
+!       Automaton.o     \
+!       Continue.o      \
+!       Gen.o   \
+!       GenLang.o       \
+!       ArgCheck.o      \
+!       Default.o       \
+!       Debug.o \
+!       Check.o \
+!       Compress.o      \
+!       Final.o \
+!       LR.o    \
+!       Lookahead.o     \
+!       Infos.o \
+! ;     $(CC) $(CFLAGS) -o lalr $(SYSTEM)       \
+!       lalr.o  \
+!       Reduce.o        \
+!       Automaton.o     \
+!       Continue.o      \
+!       Gen.o   \
+!       GenLang.o       \
+!       ArgCheck.o      \
+!       Default.o       \
+!       Debug.o \
+!       Check.o \
+!       Compress.o      \
+!       Final.o \
+!       LR.o    \
+!       Lookahead.o     \
+!       Infos.o \
+!       $(CLIBS)
+
+  # TAIL
+
+  clean :
+!       rm -f core *.o
+
+! .SUFFIXES: .md .mi .h .c .o
+
+  .mi.c:
+        mtc $(M2FLAGS) $*.mi;
+***************
+*** 192,196 ****
+  .md.h:
+          mtc $(M2FLAGS) $*.md;
+
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 211,215 ----
+  .md.h:
+        mtc $(M2FLAGS) $*.md;
+
+! .c.o:
+!       $(CC) $(CFLAGS) -c $*.c
+*** src/ArgCheck.mi     Tue Apr 06 10:04:02 1993
+--- oldsrc/ArgCheck.mi  Fri Sep 25 05:57:34 1992
+***************
+*** 80,83 ****
+
+! (* DevNull       = '/dev/null'; *)
+!   DevNull       = 'NUL';
+    Drv           = 'Drv';
+--- 80,82 ----
+
+!   DevNull     = '/dev/null';
+    Drv         = 'Drv';
+*** src/Check.mi        Tue Apr 06 10:04:00 1993
+--- oldsrc/Check.mi     Fri Sep 25 05:57:36 1992
+***************
+*** 75,78 ****
+
+!   (* DevNull       = '/dev/null'; *)
+!     DevNull       = 'NUL';
+      DEBUG       = '_Debug';
+--- 75,77 ----
+
+!     DevNull   = '/dev/null';
+      DEBUG     = '_Debug';

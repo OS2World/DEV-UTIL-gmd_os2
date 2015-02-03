@@ -1,0 +1,67 @@
+
+
+
+l2r(1)                   USER COMMANDS                     l2r(1)
+
+
+
+NAME
+     l2r - transform LEX specifications to REX specifications
+
+SYNOPSIS
+     l2r
+
+DESCRIPTION
+     L2r transforms a LEX specification to a  REX  specification.
+     Input is read from stdin, output is written to stdout.
+
+RESTRICIONS
+     Some LEX features are not supported by REX.
+
+SEE ALSO
+     lex (1), rex (1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GMD                       Last change:                          1
+
+
+
+

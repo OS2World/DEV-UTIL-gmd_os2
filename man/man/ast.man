@@ -1,0 +1,132 @@
+
+
+
+AST(1)                   USER COMMANDS                     AST(1)
+
+
+
+NAME
+     ast - generator for abstract structure/syntax trees
+
+SYNOPSIS
+     ast [-options] [-ldir] [file]
+
+DESCRIPTION
+     Ast generates a program module to  handle  arbitrary  attri-
+     buted  trees  and  graphs.   A  typical  application  is the
+     abstract syntax tree in a compiler.  The input file contains
+     a  specification which describes the structure of all possi-
+     ble trees or nodes respectively and the  attributes  of  the
+     nodes.   Ast  generates  type  declarations to implement the
+     tree and several procedures for tree manipulation  including
+     ASCII  and  binary  readers and writers (see options below).
+     If file is omitted the specification is read  from  standard
+     input.
+
+OPTIONS
+     a    generate all except -ch (default)
+
+     n    generate node constructorsprocedures n<node> (node)
+
+     m    generate node constructorsprocedures m<node> (make)
+
+     f    generate   node/tree   destroyerprocedure   ReleaseTREE
+          (free)
+
+     F    generate general  destroyerprocedure  ReleaseTREEModule
+          (FREE)
+
+     o    generate ASCII node writerprocedure WriteTREENode (out-
+          put)
+
+     r    generate ASCII graph readerprocedure ReadTREE
+
+     w    generate ASCII graph writerprocedure WriteTREE
+
+     g    generate binary graph readerprocedure GetTREE
+
+     p    generate binary graph writerprocedure PutTREE
+
+     R    generate list reverser   procedure ReverseTREE
+
+     t    generate top down traversalprocedure TraverseTREETD
+          (reverse depth first)
+
+     b    generate bottom up traversalprocedure TraverseTREEBU
+          (depth first)
+
+     y    generate graph copy      procedure CopyTREE
+
+
+
+
+GMD-Forschungsstelle-Karlsruhe    Last change:                  1
+
+
+
+
+
+
+AST(1)                   USER COMMANDS                     AST(1)
+
+
+
+     =    generate tree equality testprocedure IsEqualTREE
+
+     k    generate graph checker   procedure CheckTREE
+
+     q    generate graph browser   procedure QueryTREE
+
+     d    generate definition module
+
+     i    generate implementation module
+
+     s    generate import statements
+
+     4    generate tree/graph description in file VIEW.TS
+
+     6    generate # line directives
+
+     7    touch output files only if necessary
+
+     8    report storage consumption
+
+     c    generate C code (default is Modula-2)
+
+     h    print help information
+
+     ldir dir is the directory where ast finds its table files
+
+FILES
+     if output is in C:
+
+     <module>.h          specification of the generated graph
+                         module
+     <module>.c          body of the generated graph module
+     yy<module>.w        macro file defining type specific oper-
+                         ations
+     if output is in Modula-2:
+
+     <module>.md         definition module of the generated graph
+                         module
+     <module>.mi         implementation module of the generated
+                         graph module
+     <module>.imp        import statements
+
+SEE ALSO
+     J. Grosch: "Ast - A Generator for  Abstract  Syntax  Trees",
+     GMD Forschungsstelle an der Universitaet Karlsruhe, Compiler
+     Generation Report No. 15
+     J. Grosch: "Tool Support for  Data  Structures",  Structured
+     Programming, 12, 31-38 (1991)
+
+
+
+
+
+
+
+GMD-Forschungsstelle-Karlsruhe    Last change:                  2
+
+
+

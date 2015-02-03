@@ -1,0 +1,5 @@
+NAME            r2l WINDOWCOMPAT
+
+DESCRIPTION     'R2L, (C) GMD Karlsruhe 1992, ported by Eduard Kappel'
+PROTMODE
+STACKSIZE       32768

@@ -1,0 +1,94 @@
+*** src/Makefile	Sun Jul 25 19:29:50 1993
+--- oldsrc/Makefile	Fri Sep 25 04:10:32 1992
+***************
+*** 1,24 ****
+  BIN     = $(HOME)/bin
+! OPTA    = -s -O -D__STDC__
+! #OPTA    = -ggdb -D__STDC__
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__
+! #OPTLIB  = -Zomf -Zsys -g -D__STDC__
+! CC      = gcc
+  REUSE   = ../../reuse/c
+! CFLAGS  = -I$(REUSE) $(OPT) -L$(REUSE)
+! OBJS    = y2l.$(OBJ) Parser.$(OBJ) Scanner.$(OBJ) Tables.$(OBJ)
+  
+  # targets
+  
+- all     :
+- !IFNDEF OMF
+-         nmake "OBJ=o" "OPT=$(OPTA)" "DEF=" y2l
+- !ELSE
+-         nmake "OBJ=obj" "OPT=$(OPTLIB)" "DEF=y2l.def" y2l
+- !ENDIF
+- 
+  y2l:    $(OBJS)
+!         $(CC) $(CFLAGS) -o y2l.exe $(OBJS) -lreuse $(DEF)
+  
+  Scanner.c Scanner.h:    yacc.rex
+          rex -cd yacc.rex;
+--- 1,14 ----
+  BIN	= $(HOME)/bin
+! OPT	= -O
+! CC	= cc
+  REUSE	= ../../reuse/c
+! CFLAGS	= -w -I$(REUSE) $(OPT)
+! OBJS	= y2l.o Parser.o Scanner.o Tables.o
+  
+  # targets
+  
+  y2l:	$(OBJS)
+! 	$(CC) -o y2l $(CFLAGS) $(OBJS) $(REUSE)/libreuse.a
+  
+  Scanner.c Scanner.h:	yacc.rex
+  	rex -cd yacc.rex;
+***************
+*** 33,56 ****
+          lint -I$(REUSE) -b -u *.c
+  
+  clean:
+!         rm -f core *.$(OBJ) y2l
+  
+  CLEAN:  clean
+          rm -f Scanner.* Parser.*
+  
+  # dependencies
+  
+! y2l.$(OBJ):          y2l.c Scanner.h Parser.h Tables.h
+! Parser.$(OBJ):       Parser.c Parser.h Scanner.h Tables.h
+! Scanner.$(OBJ):      Scanner.c Scanner.h Tables.h
+! Tables.$(OBJ):       Tables.c Tables.h
+  
+  # print manual page
+  
+  man:
+          nroff -man y2l.1
+  
+! .SUFFIXES:      .c .$(OBJ)
+  
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 23,46 ----
+  	lint -I$(REUSE) -b -u *.c
+  
+  clean:
+! 	rm -f core *.o y2l
+  
+  CLEAN:	clean
+  	rm -f Scanner.* Parser.*
+  
+  # dependencies
+  
+! y2l.o:		y2l.c Scanner.h Parser.h Tables.h
+! Parser.o:	Parser.c Parser.h Scanner.h Tables.h
+! Scanner.o:	Scanner.c Scanner.h Tables.h
+! Tables.o:	Tables.c Tables.h
+  
+  # print manual page
+  
+  man:
+  	nroff -man y2l.1
+  
+! .SUFFIXES:	.c .o
+  
+! .c.o:
+! 	$(CC) $(CFLAGS) -c $*.c

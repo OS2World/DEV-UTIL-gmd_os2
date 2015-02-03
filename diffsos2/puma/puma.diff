@@ -1,0 +1,310 @@
+*** m2c/Makefile	Sun Jul 25 15:55:26 1993
+--- oldm2c/Makefile	Fri Sep 25 04:05:02 1992
+***************
+*** 1,33 ****
+  BIN     = $(HOME)/bin
+  LIB     = $(HOME)/lib
+! OPTA    = -s -O -D__STDC__
+! #OPTA    = -ggdb -D__STDC__
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__
+! #OPTLIB  = -Zomf -Zsys -g -D__STDC__
+! CC      = gcc
+! 
+!                 # binaries used
+! OBJS    = puma.$(OBJ) C.$(OBJ) Mod.$(OBJ) Optimize.$(OBJ) Parser.$(OBJ) Scanner.$(OBJ) Semantics.$(OBJ) \
+!           Tree.$(OBJ) Tree2.$(OBJ)
+  
+                  # C library (reuse)
+  REUSE   = ../../reuse/m2c
+  
+                  # C libraries
+! CLIBS   = -lreuse
+  
+                  # options for C compiler
+! CFLAGS  = -I$(REUSE) $(OPT) -L$(REUSE)
+  
+  M2FLAGS = -c -d$(HOME)/reuse/src
+  
+- all     :
+- !IFNDEF OMF
+-         nmake "OBJ=o" "OPT=$(OPTA)" "DEF=" puma
+- !ELSE
+-         nmake "OBJ=obj" "OPT=$(OPTLIB)" "DEF=puma.def" puma
+- !ENDIF
+  
+  install:        puma puma.sh $(LIB)/puma
+          if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+          sed 's;LIB;$(LIB);g' < puma.sh > $(BIN)/puma
+--- 1,22 ----
+  BIN	= $(HOME)/bin
+  LIB	= $(HOME)/lib
+! OPT	= -O
+! CC	= cc
+  
+                  # C library (reuse)
+  REUSE	= ../../reuse/m2c
+  
+                  # C libraries
+! CLIBS	= $(REUSE)/libreuse.a
+  
+                  # options for C compiler
+! CFLAGS	= -w -I$(REUSE) $(OPT)
+  
+  M2FLAGS	= -c -d$(HOME)/reuse/src
+  
+  
++ all	: puma
++ 
+  install:	puma puma.sh $(LIB)/puma
+  	if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+  	sed 's;LIB;$(LIB);g' < puma.sh > $(BIN)/puma
+***************
+*** 45,64 ****
+  
+  # swap all byte pairs of the files Scanner.Tab and Parser.Tab
+  
+! bin.conv:       ..\..\os2tools\swapbytes.exe
+!         ..\..\os2tools\swapbytes Scanner.Tab Scanner.New
+!         mv Scanner.New Scanner.Tab
+!         ..\..\os2tools\swapbytes Parser.Tab Parser.New
+!         mv Parser.New Parser.Tab
+! 
+! ..\..\os2tools\swapbytes.exe:  ..\..\os2tools\swapbytes.c
+!         $(CC) -o ..\..\os2tools\swapbytes.exe ..\..\os2tools\swapbytes.c
+! 
+! # bin.conv:
+! #         dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! #         dd conv=swab < Parser.Tab > .Parser.Tab; mv .Parser.Tab Parser.Tab
+  
+! # SYSTEM_       = SYSTEM_.$(OBJ)
+  
+  lint:
+          lint $(CFLAGS) *.c
+--- 34,44 ----
+  
+  # swap all byte pairs of the files Scanner.Tab and Parser.Tab
+  
+! bin.conv:
+! 	dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! 	dd conv=swab < Parser.Tab > .Parser.Tab; mv .Parser.Tab Parser.Tab
+  
+! # SYSTEM_	= SYSTEM_.o
+  
+  lint:
+  	lint $(CFLAGS) *.c
+***************
+*** 70,159 ****
+  C.h     : Tree.h
+  
+  sources : C.c
+! C.$(OBJ)     : C.c C.h
+! C.$(OBJ)     : Tree.h
+! C.$(OBJ)     : Semantics.h
+! C.$(OBJ)     : Optimize.h
+! C.$(OBJ)     : Tree.h
+  
+  sources : Mod.h
+  Mod.h   : Tree.h
+  
+  sources : Mod.c
+! Mod.$(OBJ)   : Mod.c Mod.h
+! Mod.$(OBJ)   : Tree.h
+! Mod.$(OBJ)   : Semantics.h
+! Mod.$(OBJ)   : Optimize.h
+! Mod.$(OBJ)   : Tree.h
+  
+  sources : Optimize.h
+  Optimize.h      : Tree.h
+  
+  sources : Optimize.c
+! Optimize.$(OBJ)      : Optimize.c Optimize.h
+! Optimize.$(OBJ)      : Tree.h
+! Optimize.$(OBJ)      : Mod.h
+! Optimize.$(OBJ)      : Tree.h
+! Optimize.$(OBJ)      : Scanner.h
+  
+  sources : Parser.h
+  
+  sources : Parser.c
+! Parser.$(OBJ)        : Parser.c Parser.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Tree.h
+  
+  sources : Scanner.h
+  
+  sources : Scanner.c
+! Scanner.$(OBJ)       : Scanner.c Scanner.h
+! Scanner.$(OBJ)       : Tree.h
+  
+  sources : Semantics.h
+  Semantics.h     : Tree.h
+  Semantics.h     : Tree.h
+  
+  sources : Semantics.c
+! Semantics.$(OBJ)     : Semantics.c Semantics.h
+! Semantics.$(OBJ)     : Tree.h
+! Semantics.$(OBJ)     : Scanner.h
+! Semantics.$(OBJ)     : Tree.h
+  
+  sources : Tree.h
+  
+  sources : Tree.c
+! Tree.$(OBJ)  : Tree.c Tree.h
+  
+  sources : Tree2.h
+  Tree2.h : Tree.h
+  
+  sources : Tree2.c
+! Tree2.$(OBJ) : Tree2.c Tree2.h
+! Tree2.$(OBJ) : Tree.h
+  
+  sources : puma.c
+! puma.$(OBJ)  : puma.c
+! puma.$(OBJ)  : Scanner.h
+! puma.$(OBJ)  : Parser.h
+! puma.$(OBJ)  : Tree.h
+! puma.$(OBJ)  : Tree2.h
+! puma.$(OBJ)  : Semantics.h
+! puma.$(OBJ)  : Optimize.h
+! puma.$(OBJ)  : Mod.h
+! puma.$(OBJ)  : C.h
+! 
+! SYSTEM_.$(OBJ)       : SYSTEM_.c SYSTEM_.h
+! 
+! puma    : $(OBJS)
+!         $(CC) $(CFLAGS) -o $*.exe $(OBJS) $(CLIBS)
+  
+  # TAIL
+  
+  clean   :
+!         rm -f core *.$(OBJ)
+  
+! .SUFFIXES: .md .mi .h .c .$(OBJ)
+  
+  .mi.c:
+          mtc $(M2FLAGS) $*.mi;
+--- 50,159 ----
+  C.h	: Tree.h
+  
+  sources	: C.c
+! C.o	: C.c C.h
+! C.o	: Tree.h
+! C.o	: Semantics.h
+! C.o	: Optimize.h
+! C.o	: Tree.h
+  
+  sources	: Mod.h
+  Mod.h	: Tree.h
+  
+  sources	: Mod.c
+! Mod.o	: Mod.c Mod.h
+! Mod.o	: Tree.h
+! Mod.o	: Semantics.h
+! Mod.o	: Optimize.h
+! Mod.o	: Tree.h
+  
+  sources	: Optimize.h
+  Optimize.h	: Tree.h
+  
+  sources	: Optimize.c
+! Optimize.o	: Optimize.c Optimize.h
+! Optimize.o	: Tree.h
+! Optimize.o	: Mod.h
+! Optimize.o	: Tree.h
+! Optimize.o	: Scanner.h
+  
+  sources	: Parser.h
+  
+  sources	: Parser.c
+! Parser.o	: Parser.c Parser.h
+! Parser.o	: Scanner.h
+! Parser.o	: Scanner.h
+! Parser.o	: Tree.h
+  
+  sources	: Scanner.h
+  
+  sources	: Scanner.c
+! Scanner.o	: Scanner.c Scanner.h
+! Scanner.o	: Tree.h
+  
+  sources	: Semantics.h
+  Semantics.h	: Tree.h
+  Semantics.h	: Tree.h
+  
+  sources	: Semantics.c
+! Semantics.o	: Semantics.c Semantics.h
+! Semantics.o	: Tree.h
+! Semantics.o	: Scanner.h
+! Semantics.o	: Tree.h
+  
+  sources	: Tree.h
+  
+  sources	: Tree.c
+! Tree.o	: Tree.c Tree.h
+  
+  sources	: Tree2.h
+  Tree2.h	: Tree.h
+  
+  sources	: Tree2.c
+! Tree2.o	: Tree2.c Tree2.h
+! Tree2.o	: Tree.h
+  
+  sources	: puma.c
+! all	: puma
+! puma.o	: puma.c
+! puma.o	: Scanner.h
+! puma.o	: Parser.h
+! puma.o	: Tree.h
+! puma.o	: Tree2.h
+! puma.o	: Semantics.h
+! puma.o	: Optimize.h
+! puma.o	: Mod.h
+! puma.o	: C.h
+! 
+! SYSTEM_.o	: SYSTEM_.c SYSTEM_.h
+! 
+! puma	: $(SYSTEM)	\
+! 	puma.o	\
+! 	C.o	\
+! 	Tree.o	\
+! 	Optimize.o	\
+! 	Scanner.o	\
+! 	Mod.o	\
+! 	Semantics.o	\
+! 	Tree2.o	\
+! 	Parser.o	\
+! ;	$(CC) $(CFLAGS) -o puma $(SYSTEM)	\
+! 	puma.o	\
+! 	C.o	\
+! 	Tree.o	\
+! 	Optimize.o	\
+! 	Scanner.o	\
+! 	Mod.o	\
+! 	Semantics.o	\
+! 	Tree2.o	\
+! 	Parser.o	\
+! 	$(CLIBS)
+  
+  # TAIL
+  
+  clean	:
+! 	rm -f core *.o
+  
+! .SUFFIXES: .md .mi .h .c .o
+  
+  .mi.c:
+  	mtc $(M2FLAGS) $*.mi;
+***************
+*** 161,165 ****
+  .md.h:
+          mtc $(M2FLAGS) $*.md;
+  
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 161,165 ----
+  .md.h:
+  	mtc $(M2FLAGS) $*.md;
+  
+! .c.o:
+! 	$(CC) $(CFLAGS) -c $*.c

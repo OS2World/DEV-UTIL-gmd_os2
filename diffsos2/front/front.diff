@@ -1,0 +1,471 @@
+*** m2c/Checks.c        Tue Apr 06 02:43:54 1993
+--- oldm2c/Checks.c     Fri Sep 25 05:56:14 1992
+***************
+*** 23,25 ****
+
+! static CHAR DevNull [] = "NUL";
+
+--- 23,25 ----
+
+! static CHAR DevNull [] = "/dev/null";
+
+***************
+*** 66,70 ****
+      SysError_SysErrorMessageI(*file, (LONGCARD)Errors_eError, (LONGCARD)Errors_eString, ADR(s));
+!     *file = IO_ReadOpen(DevNull, 3L);
+      if (SysError_StatIsBad(*file)) {
+!       Strings_ArrayToString(DevNull, 3L, &s);
+        SysError_SysErrorMessageI(*file, (LONGCARD)Errors_eFatal, (LONGCARD)Errors_eString, ADR(s));
+--- 66,70 ----
+      SysError_SysErrorMessageI(*file, (LONGCARD)Errors_eError, (LONGCARD)Errors_eString, ADR(s));
+!     *file = IO_ReadOpen(DevNull, 9L);
+      if (SysError_StatIsBad(*file)) {
+!       Strings_ArrayToString(DevNull, 9L, &s);
+        SysError_SysErrorMessageI(*file, (LONGCARD)Errors_eFatal, (LONGCARD)Errors_eString, ADR(s));
+***************
+*** 93,97 ****
+      SysError_SysErrorMessageI(*file, (LONGCARD)Errors_eError, (LONGCARD)Errors_eString, ADR(s));
+!     *file = IO_WriteOpen(DevNull, 3L);
+      if (SysError_StatIsBad(*file)) {
+!       Strings_ArrayToString(DevNull, 3L, &s);
+        SysError_SysErrorMessageI(*file, (LONGCARD)Errors_eFatal, (LONGCARD)Errors_eString, ADR(s));
+--- 93,97 ----
+      SysError_SysErrorMessageI(*file, (LONGCARD)Errors_eError, (LONGCARD)Errors_eString, ADR(s));
+!     *file = IO_WriteOpen(DevNull, 9L);
+      if (SysError_StatIsBad(*file)) {
+!       Strings_ArrayToString(DevNull, 9L, &s);
+        SysError_SysErrorMessageI(*file, (LONGCARD)Errors_eFatal, (LONGCARD)Errors_eString, ADR(s));
+*** m2c/Makefile        Sat Jul 24 14:01:36 1993
+--- oldm2c/Makefile     Fri Sep 25 03:56:12 1992
+***************
+*** 1,36 ****
+! OPTA    = -s -O -D__STDC__ -DMSDOS
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__ -DMSDOS
+! CC      = gcc
+
+                  # C library (reuse)
+  REUSE   = ../../reuse/m2c
+
+                  # C libraries
+! CLIBS   = -lreuse
+
+                  # options for C compiler
+! CFLAGS  = -I$(REUSE) $(OPT) -I$(REUSE)
+
+  M2FLAGS = -c
+
+! OBJS    = Actions.$(OBJ) Character.$(OBJ) Checks.$(OBJ) Errors.$(OBJ) Limits.$(OBJ) \
+!           Listing.$(OBJ) Oper.$(OBJ) Pars.$(OBJ) Parser.$(OBJ) Path.$(OBJ) Rules.$(OBJ) Scanner.$(OBJ) \
+!           SysError.$(OBJ) TokenTab.$(OBJ) Tokens.$(OBJ) WriteTok.$(OBJ)
+!
+! libs    :
+!         nmake "OBJ=o" "OPT=$(OPTA)" libfront.a
+!         nmake "OBJ=obj" "OPT=$(OPTLIB)" libfront.lib
+
+  libfront.a      : $(OBJS)
+-         rm -f libfront.a
+          ar uc libfront.a $(OBJS)
+! #       ranlib libfront.a
+! #       emx-gcc substitute
+!         ar s libfront.a
+!
+! libfront.lib    : $(OBJS)
+!         rm -f libfront.lib
+!         emxomfar uc libfront.lib $(OBJS)
+
+  install:        Scanner.Tab Parser.Tab ErrorTab libfront.a $(LIB)/lalr
+          cp Scanner.Tab Parser.Tab ErrorTab $(LIB)/lalr
+--- 1,25 ----
+! LIB   = $(HOME)/lib
+! OPT   = -O
+! CC    = cc
+
+                  # C library (reuse)
+  REUSE = ../../reuse/m2c
+
+                  # C libraries
+! CLIBS = $(REUSE)/libreuse.a
+
+                  # options for C compiler
+! CFLAGS        = -w -I$(REUSE) $(OPT)
+
+  M2FLAGS       = -c
+
+! OBJS  = Actions.o Character.o Checks.o Errors.o Limits.o \
+!         Listing.o Oper.o Pars.o Parser.o Path.o Rules.o Scanner.o \
+!         SysError.o TokenTab.o Tokens.o WriteTok.o
+
+  libfront.a    : $(OBJS)
+        ar uc libfront.a $(OBJS)
+!       ranlib libfront.a
+
+  install:      Scanner.Tab Parser.Tab ErrorTab libfront.a $(LIB)/lalr
+        cp Scanner.Tab Parser.Tab ErrorTab $(LIB)/lalr
+***************
+*** 43,60 ****
+
+  # swap all byte pairs of the files Scanner.Tab and Parser.Tab
+
+! bin.conv:       ..\..\os2tools\swapbytes.exe
+!         ..\..\os2tools\swapbytes Scanner.Tab Scanner.New
+!         mv Scanner.New Scanner.Tab
+!         ..\..\os2tools\swapbytes Parser.Tab Parser.New
+!         mv Parser.New Parser.Tab
+!
+! ..\..\os2tools\swapbytes.exe:  ..\..\os2tools\swapbytes.c
+!         $(CC) -o ..\..\os2tools\swapbytes.exe ..\..\os2tools\swapbytes.c
+!
+! # bin.conv:
+! #         dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! #         dd conv=swab < Parser.Tab > .Parser.Tab; mv .Parser.Tab Parser.Tab
+
+
+  # HEAD
+--- 32,40 ----
+
+  # swap all byte pairs of the files Scanner.Tab and Parser.Tab
+
+! bin.conv:
+!       dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+!       dd conv=swab < Parser.Tab > .Parser.Tab; mv .Parser.Tab Parser.Tab
+
+
+  # HEAD
+***************
+*** 63,200 ****
+  Actions.h       : TokenTab.h
+
+  sources : Actions.c
+! Actions.$(OBJ)       : Actions.c Actions.h
+! Actions.$(OBJ)       : TokenTab.h
+! Actions.$(OBJ)       : WriteTok.h
+
+  sources : Character.h
+
+  sources : Character.c
+! Character.$(OBJ)     : Character.c Character.h
+
+  sources : Checks.h
+
+  sources : Checks.c
+! Checks.$(OBJ)        : Checks.c Checks.h
+! Checks.$(OBJ)        : SysError.h
+! Checks.$(OBJ)        : Errors.h
+
+  sources : Errors.h
+
+  sources : Errors.c
+! Errors.$(OBJ)        : Errors.c Errors.h
+! Errors.$(OBJ)        : Listing.h
+! Errors.$(OBJ)        : SysError.h
+! Errors.$(OBJ)        : TokenTab.h
+
+  sources : Limits.h
+
+  sources : Limits.c
+! Limits.$(OBJ)        : Limits.c Limits.h
+
+  sources : Listing.h
+
+  sources : Listing.c
+! Listing.$(OBJ)       : Listing.c Listing.h
+
+  sources : Oper.h
+  Oper.h  : TokenTab.h
+
+  sources : Oper.c
+! Oper.$(OBJ)  : Oper.c Oper.h
+! Oper.$(OBJ)  : TokenTab.h
+! Oper.$(OBJ)  : Errors.h
+
+  sources : Pars.c
+  all     : Pars
+! Pars.$(OBJ)  : Pars.c
+! Pars.$(OBJ)  : WriteTok.h
+! Pars.$(OBJ)  : Character.h
+! Pars.$(OBJ)  : Path.h
+! Pars.$(OBJ)  : Checks.h
+! Pars.$(OBJ)  : Errors.h
+! Pars.$(OBJ)  : Parser.h
+! Pars.$(OBJ)  : Scanner.h
+! Pars.$(OBJ)  : TokenTab.h
+
+  sources : Parser.h
+
+  sources : Parser.c
+! Parser.$(OBJ)        : Parser.c Parser.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Errors.h
+! Parser.$(OBJ)        : Actions.h
+! Parser.$(OBJ)        : Errors.h
+! Parser.$(OBJ)        : Oper.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : TokenTab.h
+! Parser.$(OBJ)        : Tokens.h
+! Parser.$(OBJ)        : Rules.h
+
+  sources : Path.h
+
+  sources : Path.c
+! Path.$(OBJ)  : Path.c Path.h
+
+  sources : Rules.h
+  Rules.h : TokenTab.h
+
+  sources : Rules.c
+! Rules.$(OBJ) : Rules.c Rules.h
+! Rules.$(OBJ) : TokenTab.h
+! Rules.$(OBJ) : Errors.h
+
+  sources : Scanner.h
+  Scanner.h       : Rules.h
+
+  sources : Scanner.c
+! Scanner.$(OBJ)       : Scanner.c Scanner.h
+! Scanner.$(OBJ)       : Checks.h
+! Scanner.$(OBJ)       : Limits.h
+! Scanner.$(OBJ)       : WriteTok.h
+! Scanner.$(OBJ)       : Errors.h
+
+  sources : SysError.h
+
+  sources : SysError.c
+! SysError.$(OBJ)      : SysError.c SysError.h
+! SysError.$(OBJ)      : Errors.h
+
+  sources : TokenTab.h
+
+  sources : TokenTab.c
+! TokenTab.$(OBJ)      : TokenTab.c TokenTab.h
+! TokenTab.$(OBJ)      : Errors.h
+
+  sources : Tokens.h
+  Tokens.h        : TokenTab.h
+
+  sources : Tokens.c
+! Tokens.$(OBJ)        : Tokens.c Tokens.h
+! Tokens.$(OBJ)        : TokenTab.h
+! Tokens.$(OBJ)        : TokenTab.h
+! Tokens.$(OBJ)        : Errors.h
+
+  sources : WriteTok.h
+
+  sources : WriteTok.c
+! WriteTok.$(OBJ)      : WriteTok.c WriteTok.h
+! WriteTok.$(OBJ)      : TokenTab.h
+
+! SYSTEM_.$(OBJ)       : SYSTEM_.c SYSTEM_.h
+
+! Pars    : Pars.$(OBJ) $(OBJS)
+!         $(CC) $(CFLAGS) -o $*.exe Pars.$(OBJ) $(OBJS) $(CLIBS)
+
+  # TAIL
+
+  clean   :
+!         rm -f core *.$(OBJ)
+
+  CLEAN   :
+!         rm -f core *.$(OBJ) libfront.a
+
+! .SUFFIXES: .md .mi .h .c .$(OBJ)
+
+  .mi.c:
+          mtc $(M2FLAGS) $*.mi;
+--- 43,213 ----
+  Actions.h     : TokenTab.h
+
+  sources       : Actions.c
+! Actions.o     : Actions.c Actions.h
+! Actions.o     : TokenTab.h
+! Actions.o     : WriteTok.h
+
+  sources       : Character.h
+
+  sources       : Character.c
+! Character.o   : Character.c Character.h
+
+  sources       : Checks.h
+
+  sources       : Checks.c
+! Checks.o      : Checks.c Checks.h
+! Checks.o      : SysError.h
+! Checks.o      : Errors.h
+
+  sources       : Errors.h
+
+  sources       : Errors.c
+! Errors.o      : Errors.c Errors.h
+! Errors.o      : Listing.h
+! Errors.o      : SysError.h
+! Errors.o      : TokenTab.h
+
+  sources       : Limits.h
+
+  sources       : Limits.c
+! Limits.o      : Limits.c Limits.h
+
+  sources       : Listing.h
+
+  sources       : Listing.c
+! Listing.o     : Listing.c Listing.h
+
+  sources       : Oper.h
+  Oper.h        : TokenTab.h
+
+  sources       : Oper.c
+! Oper.o        : Oper.c Oper.h
+! Oper.o        : TokenTab.h
+! Oper.o        : Errors.h
+
+  sources       : Pars.c
+  all   : Pars
+! Pars.o        : Pars.c
+! Pars.o        : WriteTok.h
+! Pars.o        : Character.h
+! Pars.o        : Path.h
+! Pars.o        : Checks.h
+! Pars.o        : Errors.h
+! Pars.o        : Parser.h
+! Pars.o        : Scanner.h
+! Pars.o        : TokenTab.h
+
+  sources       : Parser.h
+
+  sources       : Parser.c
+! Parser.o      : Parser.c Parser.h
+! Parser.o      : Scanner.h
+! Parser.o      : Errors.h
+! Parser.o      : Actions.h
+! Parser.o      : Errors.h
+! Parser.o      : Oper.h
+! Parser.o      : Scanner.h
+! Parser.o      : TokenTab.h
+! Parser.o      : Tokens.h
+! Parser.o      : Rules.h
+
+  sources       : Path.h
+
+  sources       : Path.c
+! Path.o        : Path.c Path.h
+
+  sources       : Rules.h
+  Rules.h       : TokenTab.h
+
+  sources       : Rules.c
+! Rules.o       : Rules.c Rules.h
+! Rules.o       : TokenTab.h
+! Rules.o       : Errors.h
+
+  sources       : Scanner.h
+  Scanner.h     : Rules.h
+
+  sources       : Scanner.c
+! Scanner.o     : Scanner.c Scanner.h
+! Scanner.o     : Checks.h
+! Scanner.o     : Limits.h
+! Scanner.o     : WriteTok.h
+! Scanner.o     : Errors.h
+
+  sources       : SysError.h
+
+  sources       : SysError.c
+! SysError.o    : SysError.c SysError.h
+! SysError.o    : Errors.h
+
+  sources       : TokenTab.h
+
+  sources       : TokenTab.c
+! TokenTab.o    : TokenTab.c TokenTab.h
+! TokenTab.o    : Errors.h
+
+  sources       : Tokens.h
+  Tokens.h      : TokenTab.h
+
+  sources       : Tokens.c
+! Tokens.o      : Tokens.c Tokens.h
+! Tokens.o      : TokenTab.h
+! Tokens.o      : TokenTab.h
+! Tokens.o      : Errors.h
+
+  sources       : WriteTok.h
+
+  sources       : WriteTok.c
+! WriteTok.o    : WriteTok.c WriteTok.h
+! WriteTok.o    : TokenTab.h
+
+! SYSTEM_.o     : SYSTEM_.c SYSTEM_.h
+
+! Pars  : $(SYSTEM)     \
+!       Pars.o  \
+!       TokenTab.o      \
+!       Errors.o        \
+!       SysError.o      \
+!       Listing.o       \
+!       Scanner.o       \
+!       WriteTok.o      \
+!       Limits.o        \
+!       Checks.o        \
+!       Rules.o \
+!       Parser.o        \
+!       Tokens.o        \
+!       Oper.o  \
+!       Actions.o       \
+!       Path.o  \
+!       Character.o     \
+! ;     $(CC) $(CFLAGS) -o Pars $(SYSTEM)       \
+!       Pars.o  \
+!       TokenTab.o      \
+!       Errors.o        \
+!       SysError.o      \
+!       Listing.o       \
+!       Scanner.o       \
+!       WriteTok.o      \
+!       Limits.o        \
+!       Checks.o        \
+!       Rules.o \
+!       Parser.o        \
+!       Tokens.o        \
+!       Oper.o  \
+!       Actions.o       \
+!       Path.o  \
+!       Character.o     \
+!       $(CLIBS)
+
+  # TAIL
+
+  clean :
+!       rm -f core *.o
+
+  CLEAN :
+!       rm -f core *.o libfront.a
+
+! .SUFFIXES: .md .mi .h .c .o
+
+  .mi.c:
+        mtc $(M2FLAGS) $*.mi;
+***************
+*** 202,206 ****
+  .md.h:
+          mtc $(M2FLAGS) $*.md;
+
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 215,219 ----
+  .md.h:
+        mtc $(M2FLAGS) $*.md;
+
+! .c.o:
+!       $(CC) $(CFLAGS) -c $*.c
+*** src/Checks.mi       Tue Apr 06 02:43:06 1993
+--- oldsrc/Checks.mi    Fri Sep 25 05:56:34 1992
+***************
+*** 27,31 ****
+
+! CONST
+! (* DevNull = '/dev/null'; *)
+!   DevNull = 'NUL';
+
+--- 27,29 ----
+
+! CONST DevNull = '/dev/null';
+

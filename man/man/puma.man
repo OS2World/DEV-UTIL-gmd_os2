@@ -1,0 +1,132 @@
+
+
+
+PUMA(1)                  USER COMMANDS                    PUMA(1)
+
+
+
+NAME
+     puma - a generator  for  the  transformation  of  attributed
+     trees
+
+SYNOPSIS
+     puma [-options] [-l dir] [file]
+
+DESCRIPTION
+     puma is a tool for the transformation  of  attributed  trees
+     which is based on pattern matching and unification.  It gen-
+     erates transformers (named Trafo by default) that map attri-
+     buted  trees  to  arbitrary output. As this tool also has to
+     know about the structure of the  tree  this  information  is
+     communicated  from  ast  to  puma via a file with the suffix
+     .TS. If file is omitted the specification is read from stan-
+     dard input.
+
+OPTIONS
+     a    generate all, same as -di (default)
+
+     d    generate definition module
+
+     i    generate implementation module
+
+     s    suppress warnings
+
+     m    use procedure MakeTREE to construct nodes (default is
+          inline code)
+
+     p    allow node constructors without parentheses
+
+     f    signal a runtime error if none of the rules of a pro-
+          cedure matches
+
+     k    allow non-linear patterns
+
+     n    check parameters for NoTREE (NIL) and treat as failure
+          (tg compatibility)
+
+     w    surround actions by WITH statements (tg compatibility)
+
+     e    treat undefined names as error
+
+     v    treat undefined names as warning
+
+     o    list undefined names on standard output
+
+     t    print tree definitions
+
+     r    print patterns
+
+
+
+
+
+GMD-Forschungsstelle-Karlsruhe    Last change:                  1
+
+
+
+
+
+
+PUMA(1)                  USER COMMANDS                    PUMA(1)
+
+
+
+     q    browse internal data structure
+
+     6    generate # line directives
+
+     7    touch output files only if necessary
+
+     8    report storage consumption
+
+     c    generate C code (default is Modula-2)
+
+     h    print help information
+
+     -ldir
+          dir is the directory where puma finds its table files
+
+FILES
+     <tree>.TS           description of the tree grammar(s)
+
+     if output is in C:
+     <module>.h          specification of the generated trans-
+                         former module
+     <module>.c          body of the generated transformer module
+
+     if output is in Modula-2:
+     <module>.md         definition module of the generated trans-
+                         former module
+     <module>.mi         implementation module of the generated
+                         transformer module
+
+SEE ALSO
+     J. Grosch: "Puma - A Generator  for  the  Transformation  of
+     Attributed  Trees",  GMD  Forschungsstelle an der Universitt
+     Karlsruhe, Compiler Generation Report No. 26
+
+     J. Grosch: "Transformation of Attributed Trees Using Pattern
+     Matching", GMD Forschungsstelle an der Universitt Karlsruhe,
+     Compiler Generation Report No. 27
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GMD-Forschungsstelle-Karlsruhe    Last change:                  2
+
+
+

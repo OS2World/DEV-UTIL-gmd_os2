@@ -1,0 +1,146 @@
+                                                        B”blingen 26.07.93
+
+This is a port of the powerful compiler toolbox Cocktail written by
+Josef Grosch et al. It consists of following files:
+
+        gmdtkos2.me  - this file
+        gmdtkos2.zip - the executables, libraries, header files and
+                       table files of the tools
+        mtcos2.zip   - the executables, libraries, header files and
+                       table files of the Modula to C translator
+        man.zip      - man pages in nroff and ASCII format
+        diffsos2.zip - diffs from original distribution files, available
+                       from ftp.karlsruhe.gmd.de in pub/cocktail
+        emxrt.zip    - emx 0.8g runtime package
+                       (the whole compiler package is available from
+                        ftp.uni-stuttgart.de [129.69.1.12]:
+                                        /soft/os2/emx-0.8g
+                        ftp-os2.nmsu.edu  [128.123.35.151]:
+                                        /os2/2_x/unix/gnu/emx08g
+                        src.doc.ic.ac.uk     [146.169.2.1]:
+                                        /pub/packages/os2/2_x/unix/gnu/emx08g
+                        ftp.informatik.tu-muenchen.de [131.159.0.198]:
+                                        /pub/comp/os/os2/devtools/emx+gcc
+                       )
+
+For documentation get the files from the original distribution.
+
+I'm using it (rex, lalr, cg, rpp, puma) right now for a semester workout.
+This is also the reason why I ported it to OS/2. Actually it wasn't much
+of a port as you can see from the few diffs in diffsos2.zip. The work
+mainly consisted of changing all TABLES to little endian and writing
+command or rexx scripts replacing the Unix shell scripts.
+
+The whole toolbox was compiled using the emx 0.8g compiler
+in native mode (.o object files). The makefiles for the libraries
+create both .a and .lib files. The makefiles for the tools create
+standalone (no need for emx???.dlls) versions when OMF is defined
+on the commandline.
+
+To properly use the tools you will need some support programs:
+
+cg      - cpp, cmp, rm and mv
+ell     - none
+estra   - none
+lalr    - none
+mpp     - none
+puma    - cpp, cmp, rm and mv
+r2l     - none
+rex     - none
+rpp     - none
+
+They are:
+
+cpp     - C Preprocessor included in emx 0.8g package
+cmp     - file compare included in the GNU diff 2.x package
+rm      - file remove included in the GNU file utilities
+mv      - file move included in the GNU file utilities
+
+Most of them are available on many OS/2 ftp-sites (I get them from
+      ftp.informatik.tu-muenchen.de [131.159.0.198]:
+                                    /pub/comp/os/os2/devtools/emx+gcc
+).
+
+Installation
+------------
+
+Unzip the files in the root directory of any drive you want (Since this
+toolbox is for OS/2, a drive formated with HPFS is required --
+is there another file system under OS/2). This will create
+the following directory tree
+
+gmdtkos2.zip:
+        emx\bin
+        emx\include\reuse
+        emx\lib\cg
+        emx\lib\ell
+        emx\lib\estra
+        emx\lib\lalr
+        emx\lib\mpp
+        emx\lib\puma
+        emx\lib\r2l
+        emx\lib\rex
+        emx\lib\rpp
+
+mtcos2.zip:
+        emx\bin
+        emx\lib\makemake
+        emx\lib\mtc
+        emx\mtc-include
+
+emxrt.zip:                      Caution: Use your own, if it is newer
+        emx\doc
+        emx\book
+        emx\bin
+        emx\dll
+
+I used this structure because it is the one the emx-gcc compiler comes with.
+The reason for each tool staying in a separate subdirectory, is that the table
+files have identical names. To tell the cmd-files in the bin-directory
+where to look for the tools you must set the environment variable
+
+        set GMDLIB=drive:\emx\lib
+
+This means you can place the command files in any other directory
+in the path, and the tool-subdirectories in any directory, which
+the environment variable GMDLIB points to.
+
+
+Difficulties with OS/2
+----------------------
+
+1. The header file 'Time.h' in \emx\include\reuse clashes with the standard
+   header file 'time.h', because the OS/2 HPFS file system is not
+   casesensitiv. I rename 'Time.h' to solve the problem.
+
+2. The tools are using binary file IO, because in UNIX there is no CR/LF
+   but only a LF introducing a new line in a text file. This leads to an
+   warning by the scanner created by REX. Inserting the rule
+
+          \r \n                   :- { yyEol( 0 ); }
+
+   at the end of the scanner specification solves this problem.
+
+3. Not known so far. If you encounter any problems worth mentioning here,
+   don't hesitate to mail me a discription and solution to the problem.
+
+
+Disclaimer
+----------
+
+The tools, I use, work fine so far. But I don't take responsibilty for any
+harm created with these tools.
+
+
+Contact
+-------
+
+Question considering the tools in gerneral:
+
+        Josef Grosch <grosch@karlsruhe.gmd.de>
+
+
+Question considering the OS/2 port:
+
+        Eduard Kappel <kappel@odysseus.informatik.uni-stuttgart.de>
+

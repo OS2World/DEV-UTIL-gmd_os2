@@ -1,0 +1,146 @@
+*** m2c/Makefile	Sun Jul 25 15:55:08 1993
+--- oldm2c/Makefile	Fri Sep 25 04:06:36 1992
+***************
+*** 1,28 ****
+  BIN     = $(HOME)/bin
+  LIB     = $(HOME)/lib
+! OPTA    = -s -O -D__STDC__
+! #OPTA    = -ggdb -D__STDC__
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__
+! #OPTLIB  = -Zomf -Zsys -g -D__STDC__
+! CC      = gcc
+  
+                  # C library (reuse)
+  REUSE   = ../../reuse/m2c
+  
+                  # C libraries
+! CLIBS   = -lreuse
+  
+                  # options for C compiler
+! CFLAGS  = -I$(REUSE) $(OPT) -L$(REUSE)
+  
+  M2FLAGS = -c
+  
+! all     :
+! !IFNDEF OMF
+!         nmake "OBJ=o" "OPT=$(OPTA)" "DEF=" rpp
+! !ELSE
+!         nmake "OBJ=obj" "OPT=$(OPTLIB)" "DEF=rpp.def" rpp
+! !ENDIF
+  
+  install:        rpp rpp.sh $(LIB)/rpp
+          if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+--- 1,20 ----
+  BIN	= $(HOME)/bin
+  LIB	= $(HOME)/lib
+! OPT	= -O
+! CC	= cc
+  
+                  # C library (reuse)
+  REUSE	= ../../reuse/m2c
+  
+                  # C libraries
+! CLIBS	= $(REUSE)/libreuse.a
+  
+                  # options for C compiler
+! CFLAGS	= -w -I$(REUSE) $(OPT)
+  
+  M2FLAGS	= -c
+  
+! all:	rpp
+  
+  install:	rpp rpp.sh $(LIB)/rpp
+  	if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+***************
+*** 38,76 ****
+  
+  # swap all byte pairs of the file Scanner.Tab
+  
+! bin.conv:       ..\..\os2tools\swapbytes.exe
+!         ..\..\os2tools\swapbytes Scanner.Tab Scanner.New
+!         mv Scanner.New Scanner.Tab
+  
+- ..\..\os2tools\swapbytes.exe:  ..\..\os2tools\swapbytes.c
+-         $(CC) -o ..\..\os2tools\swapbytes.exe ..\..\os2tools\swapbytes.c
+  
+- # bin.conv:
+- #         dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+- 
+- 
+  # HEAD
+  
+  sources : Scanner.h
+  
+  sources : Scanner.c
+! Scanner.$(OBJ)       : Scanner.c Scanner.h
+  
+  sources : rpp.c
+! rpp.$(OBJ)   : rpp.c
+! rpp.$(OBJ)   : Scanner.h
+! 
+! SYSTEM_.$(OBJ)       : SYSTEM_.c SYSTEM_.h
+! 
+! rpp     : rpp.$(OBJ) Scanner.$(OBJ)
+!         $(CC) $(CFLAGS) -o rpp.exe rpp.$(OBJ) Scanner.$(OBJ) $(CLIBS)
+  
+  # TAIL
+  
+  clean   :
+!         rm -f core *.$(OBJ)
+  
+! .SUFFIXES: .md .mi .h .c .$(OBJ)
+  
+  .mi.c:
+          mtc $(M2FLAGS) $*.mi;
+--- 30,67 ----
+  
+  # swap all byte pairs of the file Scanner.Tab
+  
+! bin.conv:
+! 	dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+  
+  
+  # HEAD
+  
+  sources	: Scanner.h
+  
+  sources	: Scanner.c
+! Scanner.o	: Scanner.c Scanner.h
+  
+  sources	: rpp.c
+! all	: rpp
+! rpp.o	: rpp.c
+! rpp.o	: Scanner.h
+! 
+! SYSTEM_.o	: SYSTEM_.c SYSTEM_.h
+! 
+! rpp	: $(SYSTEM)	\
+! 	rpp.o	\
+! 	Scanner.o	\
+! ;	$(CC) $(CFLAGS) -o rpp $(SYSTEM)	\
+! 	rpp.o	\
+! 	Scanner.o	\
+! 	$(CLIBS)
+  
+  # TAIL
+  
+  clean	:
+! 	rm -f core *.o
+  
+! .SUFFIXES: .md .mi .h .c .o
+  
+  .mi.c:
+  	mtc $(M2FLAGS) $*.mi;
+***************
+*** 78,82 ****
+  .md.h:
+          mtc $(M2FLAGS) $*.md;
+  
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 69,73 ----
+  .md.h:
+  	mtc $(M2FLAGS) $*.md;
+  
+! .c.o:
+! 	$(CC) $(CFLAGS) -c $*.c

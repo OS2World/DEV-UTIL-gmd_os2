@@ -1,0 +1,774 @@
+*** m2c/Makefile	Sun Jul 25 20:24:42 1993
+--- oldm2c/Makefile	Tue Nov 24 02:51:34 1992
+***************
+*** 1,24 ****
+  BIN     = $(HOME)/bin
+  LIB     = $(HOME)/lib
+! OPTA    = -s -O -D__STDC__
+! #OPTA    = -ggdb -D__STDC__
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__
+! #OPTLIB  = -Zomf -Zsys -g -D__STDC__
+! CC      = gcc
+! 
+!                 # binaries used
+! OBJS    = mtc.$(OBJ) AssocTab.$(OBJ) Base.$(OBJ) Code.$(OBJ) DefMods.$(OBJ) Defs.$(OBJ) Errors.$(OBJ) \
+!           GenIdents.$(OBJ) Parser.$(OBJ) Positions.$(OBJ) Scanner.$(OBJ) Semantics.$(OBJ) \
+!           Source.$(OBJ) Tokens.$(OBJ) Tree.$(OBJ) Types.$(OBJ) UniqueIds.$(OBJ) Values.$(OBJ)
+  
+                  # C library (reuse)
+  REUSE   = ../../reuse/m2c
+  
+                  # C library
+! CLIBS   = -lreuse
+  
+!                 # options for gcc
+! CFLAGS  = -I$(REUSE) $(OPT) -L$(REUSE)
+  
+                  # options for mtc
+  M2FLAGS = -c
+--- 1,16 ----
+  BIN	= $(HOME)/bin
+  LIB	= $(HOME)/lib
+! OPT	= -g
+! CC	= cc
+  
+                  # C library (reuse)
+  REUSE	= ../../reuse/m2c
+  
+                  # C library
+! CLIBS	= $(REUSE)/libreuse.a
+  
+!                 # options for cc
+! CFLAGS	= -w -I$(REUSE) $(OPT)
+  
+                  # options for mtc
+  M2FLAGS	= -c
+***************
+*** 27,37 ****
+  RTS     = SYSTEM_.h SYSTEM_.c Arguments.h Arguments.c
+  
+  all     :
+- !IFNDEF OMF
+-         nmake "OBJ=o" "OPT=$(OPTA)" "DEF=" mtc
+- !ELSE
+-         nmake "OBJ=obj" "OPT=$(OPTLIB)" "DEF=mtc.def" mtc
+- !ENDIF
+  
+  install:        mtc mtc.sh $(BIN) $(LIB)/mtc
+          if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+--- 19,24 ----
+***************
+*** 57,225 ****
+  # swap all byte pairs of the file Scanner.Tab
+  # reverse all BITSETs (long words) of the file Parser.Tab
+  
+! bin.conv:       ..\..\os2tools\swapbytes.exe   ..\..\os2tools\swapwords.exe
+!         ..\..\os2tools\swapbytes Scanner.Tab Scanner.New
+!         mv Scanner.New Scanner.Tab
+!         ..\..\os2tools\swapbytes Parser.Tab Parser.New
+!         ..\..\os2tools\swapwords Parser.New Parser.Tab
+!         del Parser.New
+! 
+! ..\..\os2tools\swapbytes.exe:  ..\..\os2tools\swapbytes.c
+!         $(CC) -o ..\..\os2tools\swapbytes.exe ..\..\os2tools\swapbytes.c
+! 
+! ..\..\os2tools\swapwords.exe:  ..\..\os2tools\swapwords.c
+!         $(CC) -o ..\..\os2tools\swapwords.exe ..\..\os2tools\swapwords.c
+! 
+! # bin.conv:       convert
+! #         dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! #         dd conv=swab < Parser.Tab | convert > .Parser.Tab; mv .Parser.Tab Parser.Tab
+! #
+! # convert:        convert.c
+! #         $(CC) -o convert convert.c
+  
+  
+  # HEAD
+  
+  sources : AssocTab.h
+  
+  sources : AssocTab.c
+! AssocTab.$(OBJ)      : AssocTab.c AssocTab.h
+  
+  sources : Base.h
+  
+  sources : Base.c
+! Base.$(OBJ)  : Base.c Base.h
+  
+  sources : Code.h
+  Code.h  : Tree.h
+  
+  sources : Code.c
+! Code.$(OBJ)  : Code.c Code.h
+! Code.$(OBJ)  : Tree.h
+! Code.$(OBJ)  : Base.h
+! Code.$(OBJ)  : Tree.h
+! Code.$(OBJ)  : Defs.h
+! Code.$(OBJ)  : Values.h
+! Code.$(OBJ)  : Types.h
+! Code.$(OBJ)  : AssocTab.h
+! Code.$(OBJ)  : GenIdents.h
+! Code.$(OBJ)  : Errors.h
+! Code.$(OBJ)  : GenIdents.h
+! Code.$(OBJ)  : Defs.h
+! Code.$(OBJ)  : Values.h
+  
+  sources : DefMods.h
+  DefMods.h       : Tree.h
+  
+  sources : DefMods.c
+! DefMods.$(OBJ)       : DefMods.c DefMods.h
+! DefMods.$(OBJ)       : Base.h
+! DefMods.$(OBJ)       : Scanner.h
+! DefMods.$(OBJ)       : Parser.h
+! DefMods.$(OBJ)       : Errors.h
+! DefMods.$(OBJ)       : Positions.h
+! DefMods.$(OBJ)       : Tree.h
+! DefMods.$(OBJ)       : Defs.h
+! DefMods.$(OBJ)       : AssocTab.h
+  
+  sources : Defs.h
+  Defs.h  : Values.h
+  
+  sources : Defs.c
+! Defs.$(OBJ)  : Defs.c Defs.h
+! Defs.$(OBJ)  : Positions.h
+! Defs.$(OBJ)  : Values.h
+! Defs.$(OBJ)  : Values.h
+  
+  sources : Errors.h
+  Errors.h        : Positions.h
+  
+  sources : Errors.c
+! Errors.$(OBJ)        : Errors.c Errors.h
+! Errors.$(OBJ)        : Scanner.h
+! Errors.$(OBJ)        : Positions.h
+  
+  sources : GenIdents.h
+  
+  sources : GenIdents.c
+! GenIdents.$(OBJ)     : GenIdents.c GenIdents.h
+  
+  sources : Parser.h
+  Parser.h        : Tree.h
+  
+  sources : Parser.c
+! Parser.$(OBJ)        : Parser.c Parser.h
+! Parser.$(OBJ)        : Positions.h
+! Parser.$(OBJ)        : Errors.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Positions.h
+! Parser.$(OBJ)        : Tree.h
+! Parser.$(OBJ)        : Defs.h
+  
+  sources : Positions.h
+  
+  sources : Positions.c
+! Positions.$(OBJ)     : Positions.c Positions.h
+  
+  sources : Scanner.h
+  Scanner.h       : Tokens.h
+  Scanner.h       : Positions.h
+  
+  sources : Scanner.c
+! Scanner.$(OBJ)       : Scanner.c Scanner.h
+! Scanner.$(OBJ)       : Source.h
+! Scanner.$(OBJ)       : Errors.h
+! Scanner.$(OBJ)       : Tokens.h
+  
+  sources : Semantics.h
+  Semantics.h     : Tree.h
+  
+  sources : Semantics.c
+! Semantics.$(OBJ)     : Semantics.c Semantics.h
+! Semantics.$(OBJ)     : Tree.h
+! Semantics.$(OBJ)     : Tree.h
+! Semantics.$(OBJ)     : UniqueIds.h
+! Semantics.$(OBJ)     : Values.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : GenIdents.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Types.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Values.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : UniqueIds.h
+! Semantics.$(OBJ)     : GenIdents.h
+! Semantics.$(OBJ)     : Errors.h
+! Semantics.$(OBJ)     : Errors.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : GenIdents.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Tree.h
+! Semantics.$(OBJ)     : Code.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : Defs.h
+! Semantics.$(OBJ)     : GenIdents.h
+! Semantics.$(OBJ)     : Defs.h
+  
+  sources : Source.h
+  
+  sources : Source.c
+! Source.$(OBJ)        : Source.c Source.h
+! Source.$(OBJ)        : Scanner.h
+  
+  sources : Tokens.h
+  
+  sources : Tokens.c
+! Tokens.$(OBJ)        : Tokens.c Tokens.h
+  
+  sources : Tree.h
+  Tree.h  : Positions.h
+--- 44,199 ----
+  # swap all byte pairs of the file Scanner.Tab
+  # reverse all BITSETs (long words) of the file Parser.Tab
+  
+! bin.conv:	convert
+! 	dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! 	dd conv=swab < Parser.Tab | convert > .Parser.Tab; mv .Parser.Tab Parser.Tab
+  
++ convert:	convert.c
++ 	$(CC) -o convert convert.c
+  
++ 
+  # HEAD
+  
+  sources	: AssocTab.h
+  
+  sources	: AssocTab.c
+! AssocTab.o	: AssocTab.c AssocTab.h
+  
+  sources	: Base.h
+  
+  sources	: Base.c
+! Base.o	: Base.c Base.h
+  
+  sources	: Code.h
+  Code.h	: Tree.h
+  
+  sources	: Code.c
+! Code.o	: Code.c Code.h
+! Code.o	: Tree.h
+! Code.o	: Base.h
+! Code.o	: Tree.h
+! Code.o	: Defs.h
+! Code.o	: Values.h
+! Code.o	: Types.h
+! Code.o	: AssocTab.h
+! Code.o	: GenIdents.h
+! Code.o	: Errors.h
+! Code.o	: GenIdents.h
+! Code.o	: Defs.h
+! Code.o	: Values.h
+  
+  sources	: DefMods.h
+  DefMods.h	: Tree.h
+  
+  sources	: DefMods.c
+! DefMods.o	: DefMods.c DefMods.h
+! DefMods.o	: Base.h
+! DefMods.o	: Scanner.h
+! DefMods.o	: Parser.h
+! DefMods.o	: Errors.h
+! DefMods.o	: Positions.h
+! DefMods.o	: Tree.h
+! DefMods.o	: Defs.h
+! DefMods.o	: AssocTab.h
+  
+  sources	: Defs.h
+  Defs.h	: Values.h
+  
+  sources	: Defs.c
+! Defs.o	: Defs.c Defs.h
+! Defs.o	: Positions.h
+! Defs.o	: Values.h
+! Defs.o	: Values.h
+  
+  sources	: Errors.h
+  Errors.h	: Positions.h
+  
+  sources	: Errors.c
+! Errors.o	: Errors.c Errors.h
+! Errors.o	: Scanner.h
+! Errors.o	: Positions.h
+  
+  sources	: GenIdents.h
+  
+  sources	: GenIdents.c
+! GenIdents.o	: GenIdents.c GenIdents.h
+  
+  sources	: Parser.h
+  Parser.h	: Tree.h
+  
+  sources	: Parser.c
+! Parser.o	: Parser.c Parser.h
+! Parser.o	: Positions.h
+! Parser.o	: Errors.h
+! Parser.o	: Scanner.h
+! Parser.o	: Scanner.h
+! Parser.o	: Positions.h
+! Parser.o	: Tree.h
+! Parser.o	: Defs.h
+  
+  sources	: Positions.h
+  
+  sources	: Positions.c
+! Positions.o	: Positions.c Positions.h
+  
+  sources	: Scanner.h
+  Scanner.h	: Tokens.h
+  Scanner.h	: Positions.h
+  
+  sources	: Scanner.c
+! Scanner.o	: Scanner.c Scanner.h
+! Scanner.o	: Source.h
+! Scanner.o	: Errors.h
+! Scanner.o	: Tokens.h
+  
+  sources	: Semantics.h
+  Semantics.h	: Tree.h
+  
+  sources	: Semantics.c
+! Semantics.o	: Semantics.c Semantics.h
+! Semantics.o	: Tree.h
+! Semantics.o	: Tree.h
+! Semantics.o	: UniqueIds.h
+! Semantics.o	: Values.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Defs.h
+! Semantics.o	: GenIdents.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Types.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Values.h
+! Semantics.o	: Defs.h
+! Semantics.o	: UniqueIds.h
+! Semantics.o	: GenIdents.h
+! Semantics.o	: Errors.h
+! Semantics.o	: Errors.h
+! Semantics.o	: Defs.h
+! Semantics.o	: GenIdents.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Tree.h
+! Semantics.o	: Code.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Defs.h
+! Semantics.o	: Defs.h
+! Semantics.o	: GenIdents.h
+! Semantics.o	: Defs.h
+  
+  sources	: Source.h
+  
+  sources	: Source.c
+! Source.o	: Source.c Source.h
+! Source.o	: Scanner.h
+  
+  sources	: Tokens.h
+  
+  sources	: Tokens.c
+! Tokens.o	: Tokens.c Tokens.h
+  
+  sources	: Tree.h
+  Tree.h	: Positions.h
+***************
+*** 228,291 ****
+  Tree.h  : UniqueIds.h
+  
+  sources : Tree.c
+! Tree.$(OBJ)  : Tree.c Tree.h
+! Tree.$(OBJ)  : Positions.h
+! Tree.$(OBJ)  : Positions.h
+  
+  sources : Types.h
+  Types.h : Values.h
+  Types.h : Defs.h
+  
+  sources : Types.c
+! Types.$(OBJ) : Types.c Types.h
+! Types.$(OBJ) : Base.h
+! Types.$(OBJ) : Tree.h
+! Types.$(OBJ) : Defs.h
+! Types.$(OBJ) : Values.h
+! Types.$(OBJ) : Code.h
+  
+  sources : UniqueIds.h
+  
+  sources : UniqueIds.c
+! UniqueIds.$(OBJ)     : UniqueIds.c UniqueIds.h
+! UniqueIds.$(OBJ)     : Errors.h
+  
+  sources : Values.h
+  
+  sources : Values.c
+! Values.$(OBJ)        : Values.c Values.h
+! Values.$(OBJ)        : Tree.h
+! Values.$(OBJ)        : Defs.h
+! Values.$(OBJ)        : Types.h
+! Values.$(OBJ)        : Defs.h
+! Values.$(OBJ)        : Tree.h
+  
+  sources : mtc.c
+! mtc.$(OBJ)   : mtc.c
+! mtc.$(OBJ)   : Base.h
+! mtc.$(OBJ)   : Scanner.h
+! mtc.$(OBJ)   : Parser.h
+! mtc.$(OBJ)   : Tree.h
+! mtc.$(OBJ)   : DefMods.h
+! mtc.$(OBJ)   : Defs.h
+! mtc.$(OBJ)   : Semantics.h
+! mtc.$(OBJ)   : Code.h
+! mtc.$(OBJ)   : Errors.h
+! mtc.$(OBJ)   : Tree.h
+! mtc.$(OBJ)   : Defs.h
+! mtc.$(OBJ)   : Code.h
+! 
+! SYSTEM_.$(OBJ)       : SYSTEM_.c SYSTEM_.h
+! 
+! mtc     : $(OBJS)
+!         $(CC) $(CFLAGS) -o $*.exe $(OBJS) $(CLIBS) $(DEF)
+  
+  # TAIL
+  
+  clean   :
+!         rm -f core *.$(OBJ) convert
+  
+! .SUFFIXES: .md .mi .h .c .$(OBJ)
+  
+  .mi.c:
+          mtc $(M2FLAGS) $*.mi;
+--- 202,303 ----
+  Tree.h	: UniqueIds.h
+  
+  sources	: Tree.c
+! Tree.o	: Tree.c Tree.h
+! Tree.o	: Positions.h
+! Tree.o	: Positions.h
+  
+  sources	: Types.h
+  Types.h	: Values.h
+  Types.h	: Defs.h
+  
+  sources	: Types.c
+! Types.o	: Types.c Types.h
+! Types.o	: Base.h
+! Types.o	: Tree.h
+! Types.o	: Defs.h
+! Types.o	: Values.h
+! Types.o	: Code.h
+  
+  sources	: UniqueIds.h
+  
+  sources	: UniqueIds.c
+! UniqueIds.o	: UniqueIds.c UniqueIds.h
+! UniqueIds.o	: Errors.h
+  
+  sources	: Values.h
+  
+  sources	: Values.c
+! Values.o	: Values.c Values.h
+! Values.o	: Tree.h
+! Values.o	: Defs.h
+! Values.o	: Types.h
+! Values.o	: Defs.h
+! Values.o	: Tree.h
+  
+  sources	: mtc.c
+! all	: mtc
+! mtc.o	: mtc.c
+! mtc.o	: Base.h
+! mtc.o	: Scanner.h
+! mtc.o	: Parser.h
+! mtc.o	: Tree.h
+! mtc.o	: DefMods.h
+! mtc.o	: Defs.h
+! mtc.o	: Semantics.h
+! mtc.o	: Code.h
+! mtc.o	: Errors.h
+! mtc.o	: Tree.h
+! mtc.o	: Defs.h
+! mtc.o	: Code.h
+! 
+! SYSTEM_.o	: SYSTEM_.c SYSTEM_.h
+! 
+! mtc	: $(SYSTEM)	\
+! 	mtc.o	\
+! 	Code.o	\
+! 	Values.o	\
+! 	Tree.o	\
+! 	Positions.o	\
+! 	UniqueIds.o	\
+! 	Errors.o	\
+! 	Scanner.o	\
+! 	Tokens.o	\
+! 	Source.o	\
+! 	Defs.o	\
+! 	Types.o	\
+! 	Base.o	\
+! 	GenIdents.o	\
+! 	AssocTab.o	\
+! 	Semantics.o	\
+! 	DefMods.o	\
+! 	Parser.o	\
+! ;	$(CC) $(CFLAGS) -o mtc $(SYSTEM)	\
+! 	mtc.o	\
+! 	Code.o	\
+! 	Values.o	\
+! 	Tree.o	\
+! 	Positions.o	\
+! 	UniqueIds.o	\
+! 	Errors.o	\
+! 	Scanner.o	\
+! 	Tokens.o	\
+! 	Source.o	\
+! 	Defs.o	\
+! 	Types.o	\
+! 	Base.o	\
+! 	GenIdents.o	\
+! 	AssocTab.o	\
+! 	Semantics.o	\
+! 	DefMods.o	\
+! 	Parser.o	\
+! 	$(CLIBS)
+  
+  # TAIL
+  
+  clean	:
+! 	rm -f core *.o convert
+  
+! .SUFFIXES: .md .mi .h .c .o
+  
+  .mi.c:
+  	mtc $(M2FLAGS) $*.mi;
+***************
+*** 293,297 ****
+  .md.h:
+          mtc $(M2FLAGS) $*.md;
+  
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 305,309 ----
+  .md.h:
+  	mtc $(M2FLAGS) $*.md;
+  
+! .c.o:
+! 	$(CC) $(CFLAGS) -c $*.c
+*** make/MakefileC	Sun Jul 25 20:38:04 1993
+--- oldmake/MakefileC	Tue Nov 24 02:51:52 1992
+***************
+*** 1,32 ****
+  BIN     = $(HOME)/bin
+  LIB     = $(HOME)/lib
+! OPTA    = -s -O -D__STDC__
+! #OPTA    = -ggdb -D__STDC__
+! OPTLIB  = -Zomf -Zsys -s -O -D__STDC__
+! #OPTLIB  = -Zomf -Zsys -g -D__STDC__
+! CC      = gcc
+  
+-                 # binaries used
+- OBJS    = GetImports.$(OBJ) Errors.$(OBJ) Parser.$(OBJ) Scanner.$(OBJ)
+- 
+                  # C library (reuse)
+  REUSE   = ../../reuse/m2c
+  
+                  # C library
+! CLIBS   = -lreuse
+  
+                  # options for cc
+! CFLAGS  = -I$(REUSE) $(OPT) -L$(REUSE)
+  
+                  # options for mtc
+  MFLAGS  = -c
+  
+  all     :
+- !IFNDEF OMF
+-         nmake /f MakefileC "OBJ=o" "OPT=$(OPTA)" "DEF=" GetImports
+- !ELSE
+-         nmake /f MakefileC "OBJ=obj" "OPT=$(OPTLIB)" "DEF=GetImports.def" GetImports
+- !ENDIF
+  
+  install:        GetImports makemake $(BIN) $(LIB)/makemake
+          -if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+--- 1,21 ----
+  BIN	= $(HOME)/bin
+  LIB	= $(HOME)/lib
+! OPT	= -O
+! CC	= cc
+  
+                  # C library (reuse)
+  REUSE	= ../../reuse/m2c
+  
+                  # C library
+! CLIBS	= $(REUSE)/libreuse.a
+  
+                  # options for cc
+! CFLAGS	= -w $(OPT) -I$(REUSE)
+  
+                  # options for mtc
+  MFLAGS	= -c
+  
+  all	:
+  
+  install:	GetImports makemake $(BIN) $(LIB)/makemake
+  	-if test $(LIB) = $(BIN); then echo error: BIN = LIB; false; else true; fi
+***************
+*** 51,75 ****
+  # swap all byte pairs of the file Scanner.Tab
+  # reverse all BITSETs (long words) of the file Parser.Tab
+  
+! bin.conv:       ..\..\os2tools\swapbytes.exe   ..\..\os2tools\swapwords.exe
+!         ..\..\os2tools\swapbytes Scanner.Tab Scanner.New
+!         mv Scanner.New Scanner.Tab
+!         ..\..\os2tools\swapbytes Parser.Tab Parser.New
+!         ..\..\os2tools\swapwords Parser.New Parser.Tab
+!         del Parser.New
+! 
+! ..\..\os2tools\swapbytes.exe:  ..\..\os2tools\swapbytes.c
+!         $(CC) -o ..\..\os2tools\swapbytes.exe ..\..\os2tools\swapbytes.c
+! 
+! ..\..\os2tools\swapwords.exe:  ..\..\os2tools\swapwords.c
+!         $(CC) -o ..\..\os2tools\swapwords.exe ..\..\os2tools\swapwords.c
+! 
+! # bin.conv:       convert
+! #         dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! #         dd conv=swab < Parser.Tab | convert > .Parser.Tab; mv .Parser.Tab Parser.Tab
+! #
+! # convert:        convert.c
+! #         $(CC) -o convert convert.c
+  
+  
+  # HEAD
+--- 40,51 ----
+  # swap all byte pairs of the file Scanner.Tab
+  # reverse all BITSETs (long words) of the file Parser.Tab
+  
+! bin.conv:	convert
+! 	dd conv=swab < Scanner.Tab > .Scanner.Tab; mv .Scanner.Tab Scanner.Tab
+! 	dd conv=swab < Parser.Tab | convert > .Parser.Tab; mv .Parser.Tab Parser.Tab
+! 
+! convert:	convert.o
+! 	$(CC) -o convert convert.o
+  
+  
+  # HEAD
+***************
+*** 77,123 ****
+  sources : Errors.h
+  
+  sources : Errors.c
+! Errors.$(OBJ)        : Errors.c Errors.h
+  
+  sources : GetImports.c
+! GetImports.$(OBJ)    : GetImports.c
+! GetImports.$(OBJ)    : Scanner.h
+! GetImports.$(OBJ)    : Parser.h
+! GetImports.$(OBJ)    : Errors.h
+  
+  sources : Parser.h
+  Parser.h        : Scanner.h
+  
+  sources : Parser.c
+! Parser.$(OBJ)        : Parser.c Parser.h
+! Parser.$(OBJ)        : Errors.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Scanner.h
+! Parser.$(OBJ)        : Errors.h
+  
+  sources : Scanner.h
+  
+  sources : Scanner.c
+! Scanner.$(OBJ)       : Scanner.c Scanner.h
+! Scanner.$(OBJ)       : Errors.h
+  
+! SYSTEM_.$(OBJ)       : SYSTEM_.c SYSTEM_.h
+  
+! GetImports      : $(OBJS)
+!         $(CC) $(CFLAGS) -o $*.exe $(OBJS) $(CLIBS) $(DEFS)
+  
+  # TAIL
+  
+  clean   :
+!         rm -f core *.$(OBJ)
+  
+! .SUFFIXES: .md .mi .h .c .$(OBJ)
+  
+! # .mi.c:
+! #         mtc $(MFLAGS) $*.mi;
+! #
+! # .md.h:
+! #         mtc $(MFLAGS) $*.md;
+  
+! .c.$(OBJ):
+!         $(CC) -c $(CFLAGS) -o $*.$(OBJ) $*.c
+--- 53,109 ----
+  sources	: Errors.h
+  
+  sources	: Errors.c
+! Errors.o	: Errors.c Errors.h
+  
+  sources	: GetImports.c
+! all	: GetImports
+! GetImports.o	: GetImports.c
+! GetImports.o	: Scanner.h
+! GetImports.o	: Parser.h
+! GetImports.o	: Errors.h
+  
+  sources	: Parser.h
+  Parser.h	: Scanner.h
+  
+  sources	: Parser.c
+! Parser.o	: Parser.c Parser.h
+! Parser.o	: Errors.h
+! Parser.o	: Scanner.h
+! Parser.o	: Scanner.h
+! Parser.o	: Errors.h
+  
+  sources	: Scanner.h
+  
+  sources	: Scanner.c
+! Scanner.o	: Scanner.c Scanner.h
+! Scanner.o	: Errors.h
+  
+! SYSTEM_.o	: SYSTEM_.c SYSTEM_.h
+  
+! GetImports	: $(SYSTEM)	\
+! 	GetImports.o	\
+! 	Errors.o	\
+! 	Parser.o	\
+! 	Scanner.o	\
+! ;	$(CC) $(CFLAGS) -o GetImports $(SYSTEM)	\
+! 	GetImports.o	\
+! 	Errors.o	\
+! 	Parser.o	\
+! 	Scanner.o	\
+! 	$(CLIBS)
+  
+  # TAIL
+  
+  clean	:
+! 	rm -f core *.o
+! 
+! .SUFFIXES: .md .mi .h .c .o
+  
+! .mi.c:
+! 	mtc $(MFLAGS) $*.mi;
+  
+! .md.h:
+! 	mtc $(MFLAGS) $*.md;
+  
+! .c.o:
+! 	$(CC) $(CFLAGS) -c $*.c;

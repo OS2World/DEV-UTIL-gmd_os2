@@ -1,0 +1,5 @@
+NAME            l2r WINDOWCOMPAT
+
+DESCRIPTION     'L2R, (C) GMD Karlsruhe 1992, ported by Eduard Kappel'
+PROTMODE
+STACKSIZE       32768

@@ -1,0 +1,132 @@
+
+
+
+ELL(1)                   USER COMMANDS                     ELL(1)
+
+
+
+NAME
+     ell - recursive descent parser generator
+
+SYNOPSIS
+     ell [-options] [file]
+
+DESCRIPTION
+     The parser generator Ell processes LL(1) grammars which  may
+     contain  EBNF  constructs and semantic actions. It generates
+     recursive descent parsers.  A  mechanism  for  L-attribution
+     (inherited  and  synthesized attributes evaluable during one
+     preorder traversal) is provided. Syntax errors  are  handled
+     fully  automatic  including error reporting from a prototype
+     error module, error recovery, and error repair.
+
+     The grammar is either read from the file given  as  argument
+     or  from  standard input. The output is written to the files
+     <Parser>.md and <Parser>.mi  (Modula-2)  or  <Parser>.h  and
+     <Parser>.c  (C).  Errors detected during the analysis of the
+     grammar are reported on standard error.
+
+     The generated parser needs a few additional modules:
+     First,      a       scanner       (<Scanner>.md/<Scanner>.c,
+     <Scanner>.mi/<Scanner>.h)  containing  the function GetToken
+     () and the global  variable  Attribute.   A  very  primitive
+     scanner can be requested with the option -s.
+     Second, a main program.  Option -p  will  provide  a  simple
+     parser driver (<Parser>Drv.mi/<Parser>Drv.c).
+     Third, an error handling module called Errors has to provide
+     the  procedures  ErrorMessage and ErrorMessageI. A prototype
+     error handler can be requested with the option -e .
+
+OPTIONS
+     c    generate C code
+
+     d    generate definition part
+
+     e    generate prototype error handler
+
+     g    generate # line directives
+
+     h    provide help information
+
+     i    generate implementation part
+
+     m    generate Modula-2 code (default)
+
+     p    generate parser driver
+
+     s    generate (simple) scanner
+
+
+
+
+
+GMD-Forschungsstelle-Karlsruhe    Last change:                  1
+
+
+
+
+
+
+ELL(1)                   USER COMMANDS                     ELL(1)
+
+
+
+FILES
+     if output is in C:
+
+     <Parser>.h     specification of the generated parser
+     <Parser>.c     body of the generated parser
+     <Parser>Drv.c  body of the parser driver
+     Errors.h       specification of error handler
+     Errors.c       body of error handler
+     <Scanner>.h    specification of scanner
+     <Scanner>.c    body of scanner
+     if output is in Modula-2:
+
+     <Parser>.md    definition module of the generated parser
+     <Parser>.mi    implementation module of the generated parser
+     <Parser>Drv.mi implementation module of the parser driver
+     Errors.md      definition module of error handler
+     Errors.mi      implementation module of error handler
+     <Scanner>.md   definition module of scanner
+     <Scanner>.mi   implementation module of scanner
+     <Parser>.Tab   table to control error recovery
+
+SEE ALSO
+     J. Grosch, B. Vielsack:  "The  Parser  Generators  Lalr  and
+     Ell",  GMD  Forschungsstelle  an der Universitaet Karlsruhe,
+     Compiler Generation Report No. 8, 1991
+     J. Grosch: "Efficient  and  Comfortable  Error  Recovery  in
+     Recursive  Descent  Parsers",  Structured  Programming,  11,
+     129-140 (1990)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+GMD-Forschungsstelle-Karlsruhe    Last change:                  2
+
+
+
